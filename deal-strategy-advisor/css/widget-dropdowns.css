@@ -1,0 +1,178 @@
+/* 
+ * widget-dropdowns.css
+ * Special CSS for widget dropdowns to ensure they work properly
+ */
+
+/**
+ * Dropdown Styles - Fixed version
+ * Separate, specific styles for each dropdown type
+ */
+
+/* Widget mode selector container */
+.widget-mode-selector {
+    position: relative !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    z-index: 1001 !important; /* Higher z-index to ensure visibility */
+}
+
+/* Common dropdown styles */
+.dropdown {
+    position: relative !important;
+    display: inline-block !important;
+}
+
+/* ===== AGENT DROPDOWN STYLES ===== */
+
+/* Button style */
+.widget-mode-selector .mode-selector-btn {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    background-color: #f1f1f1 !important;
+    color: #333 !important;
+    padding: 8px 12px !important;
+    border: none !important;
+    border-radius: 4px !important;
+    cursor: pointer !important;
+    font-size: 14px !important;
+    font-weight: 500 !important;
+    min-width: 80px !important;
+    user-select: none !important;
+}
+
+/* Dropdown arrow icon */
+.widget-mode-selector .dropdown-arrow {
+    margin-left: 8px !important;
+    font-size: 10px !important;
+}
+
+/* AGENT Dropdown content - opens UPWARD as requested */
+.widget-mode-selector .dropdown-content {
+    display: none !important;
+    position: absolute !important;
+    background-color: #fff !important;
+    min-width: 160px !important;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2) !important;
+    border-radius: 4px !important;
+    z-index: 9999 !important;
+    overflow: hidden !important;
+    bottom: 100% !important; /* Position ABOVE the button */
+    left: 0 !important;
+    margin-bottom: 6px !important; /* Space between button and dropdown */
+    border: 1px solid rgba(0,0,0,0.1) !important;
+}
+
+/* When Agent dropdown is visible */
+.widget-mode-selector .dropdown-content.show {
+    display: block !important;
+    animation: fadeInUp 0.15s ease-out !important;
+}
+
+/* Agent dropdown items */
+.widget-mode-selector .dropdown-content a {
+    color: #333 !important;
+    padding: 10px 16px !important;
+    text-decoration: none !important;
+    display: block !important;
+    font-size: 14px !important;
+    border-bottom: 1px solid rgba(0,0,0,0.05) !important;
+}
+
+/* Last agent dropdown item */
+.widget-mode-selector .dropdown-content a:last-child {
+    border-bottom: none !important;
+}
+
+/* Hover effect for agent items */
+.widget-mode-selector .dropdown-content a:hover {
+    background-color: #f5f5f5 !important;
+}
+
+/* Active agent item */
+.widget-mode-selector .dropdown-content a.active {
+    background-color: #e6f7ff !important;
+    color: #1890ff !important;
+    font-weight: 500 !important;
+}
+
+/* Animation for agent dropdown (moving up) */
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* ===== SELECT DEAL DROPDOWN STYLES ===== */
+
+/* Select Deal button */
+.select-deal-btn {
+    cursor: pointer !important;
+    position: relative !important;
+    z-index: 1000 !important;
+    background-color: #4285f4 !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 4px !important;
+    padding: 8px 12px !important;
+    font-size: 14px !important;
+}
+
+/* DEAL dropdown - ALSO opens UPWARD (changed from downward) */
+.no-deal-state .dropdown-content {
+    display: none !important;
+    position: absolute !important;
+    background-color: #fff !important;
+    min-width: 220px !important;
+    max-width: 280px !important;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2) !important;
+    border-radius: 4px !important;
+    z-index: 9999 !important;
+    overflow: hidden !important;
+    bottom: 100% !important; /* Changed from top to bottom - Position ABOVE the button */
+    left: 0 !important;
+    margin-bottom: 6px !important; /* Changed from margin-top - Space between button and dropdown */
+    border: 1px solid rgba(0,0,0,0.1) !important;
+}
+
+/* When deal dropdown is visible */
+.no-deal-state .dropdown-content.show {
+    display: block !important;
+    animation: fadeInUp 0.15s ease-out !important; /* Changed from fadeInDown to fadeInUp */
+}
+
+/* Deal dropdown items */
+.no-deal-state .dropdown-content a {
+    color: #333 !important;
+    padding: 10px 16px !important;
+    text-decoration: none !important;
+    display: block !important;
+    font-size: 14px !important;
+    border-bottom: 1px solid rgba(0,0,0,0.05) !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+}
+
+/* Hover effect for deal items */
+.no-deal-state .dropdown-content a:hover {
+    background-color: #f5f5f5 !important;
+}
+
+/* Animation for deal dropdown - now also moving up (was moving down) */
+@keyframes fadeInDown {
+    from { opacity: 0; transform: translateY(-5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* ===== CRITICAL FIXES ===== */
+
+/* DISABLE hover behavior for all dropdowns */
+.dropdown:hover .dropdown-content {
+    display: none !important;
+}
+
+/* Force high z-index for ALL dropdowns when shown */
+.dropdown-content.show {
+    z-index: 9999 !important;
+} 

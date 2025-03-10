@@ -357,4 +357,191 @@ window.addEventListener('load', function() {
         }
         console.log('After automated and manual testing, continue with CSS implementation.');
     }, 500);
-}); 
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Test script loaded');
+    
+    // Test button to simulate deal selection
+    const testControlsDiv = document.createElement('div');
+    testControlsDiv.id = 'testControlsContainer'; // Add ID for easier targeting
+    testControlsDiv.style.position = 'fixed';
+    testControlsDiv.style.top = '50px';
+    testControlsDiv.style.right = '20px';
+    testControlsDiv.style.zIndex = '2000';
+    testControlsDiv.style.backgroundColor = '#f5f5f5';
+    testControlsDiv.style.padding = '10px';
+    testControlsDiv.style.borderRadius = '5px';
+    testControlsDiv.style.boxShadow = '0 2px 5px rgba(0,0,0,0.2)';
+    
+    // Get real deal names if available
+    let dealNames = ["Acme Corporation (Fallback)", "TechStar Inc (Fallback)", "Global Systems (Fallback)"];
+    
+    if (window.dealStore && window.dealStore.deals) {
+        const dealIds = Object.keys(window.dealStore.deals);
+        for (let i = 0; i < Math.min(3, dealIds.length); i++) {
+            if (dealIds[i] && window.dealStore.deals[dealIds[i]]) {
+                dealNames[i] = window.dealStore.deals[dealIds[i]].name;
+            }
+        }
+    }
+    
+    testControlsDiv.innerHTML = `
+        <div style="margin-bottom: 10px; font-weight: bold;">Test Controls</div>
+        <button id="testDeal1Btn" style="margin-right: 5px;">${dealNames[0]}</button>
+        <button id="testDeal2Btn" style="margin-right: 5px;">${dealNames[1]}</button>
+        <button id="testDeal3Btn" style="margin-right: 5px;">${dealNames[2]}</button>
+        <button id="testClearDealBtn" style="margin-top: 5px;">Clear Deal</button>
+        <div style="margin-top: 10px;">
+            <button id="testCommandBtn" style="margin-right: 5px;">/help Command</button>
+            <button id="testChatBtn">Test Chat</button>
+        </div>
+        <div style="margin-top: 10px;">
+            <button id="testExpandPlusBtn">Show Deal Content</button>
+        </div>
+    `;
+    
+    document.body.appendChild(testControlsDiv);
+    
+    // Add event listeners to test buttons
+    document.getElementById('testDeal1Btn').addEventListener('click', function() {
+        // Get real deal ID if available
+        const dealId = 'deal-1';
+        const dealName = dealNames[0];
+        simulateDealSelection(dealId, dealName);
+    });
+    
+    document.getElementById('testDeal2Btn').addEventListener('click', function() {
+        const dealId = 'deal-2';
+        const dealName = dealNames[1];
+        simulateDealSelection(dealId, dealName);
+    });
+    
+    document.getElementById('testDeal3Btn').addEventListener('click', function() {
+        const dealId = 'deal-3';
+        const dealName = dealNames[2];
+        simulateDealSelection(dealId, dealName);
+    });
+    
+    document.getElementById('testClearDealBtn').addEventListener('click', function() {
+        clearDeal();
+    });
+    
+    document.getElementById('testCommandBtn').addEventListener('click', function() {
+        sendChatMessage('/help');
+    });
+    
+    document.getElementById('testChatBtn').addEventListener('click', function() {
+        const testQuestions = [
+            "What's the current status of this deal?",
+            "Who are the key stakeholders?",
+            "Can you tell me about the pricing and proposal?",
+            "What are the next steps for this deal?"
+        ];
+        
+        const randomQuestion = testQuestions[Math.floor(Math.random() * testQuestions.length)];
+        sendChatMessage(randomQuestion);
+    });
+    
+    document.getElementById('testExpandPlusBtn').addEventListener('click', function() {
+        showDealContent();
+    });
+});
+
+/**
+ * Simulate selecting a deal
+ */
+function simulateDealSelection(dealId, dealName) {
+    console.log('Test: Simulating deal selection', dealId, dealName);
+    
+    // Dispatch the dealSelected event
+    document.dispatchEvent(new CustomEvent('dealSelected', { 
+        detail: { 
+            dealId: dealId,
+            dealName: dealName
+        } 
+    }));
+    
+    // Expand deal content if it's not already expanded
+    setTimeout(() => {
+        showDealContent();
+    }, 500);
+}
+
+/**
+ * Clear the current deal
+ */
+function clearDeal() {
+    console.log('Test: Clearing deal');
+    
+    // Update UI directly
+    const noDealState = document.querySelector('.deal-context-bar .no-deal-state');
+    const activeDealState = document.querySelector('.deal-context-bar .active-deal-state');
+    if (noDealState) noDealState.classList.add('active');
+    if (activeDealState) activeDealState.classList.remove('active');
+    
+    // Update welcome messages
+    const noDealMessage = document.querySelector('.welcome-message.no-deal-message');
+    const dealMessage = document.querySelector('.welcome-message.deal-message');
+    if (noDealMessage) noDealMessage.classList.add('active');
+    if (dealMessage) dealMessage.classList.remove('active');
+    
+    // Dispatch event to inform components
+    document.dispatchEvent(new CustomEvent('dealCleared'));
+    
+    // Also make sure deal selection is cleared in the data store
+    // This is a more direct approach for testing
+    const dealClearedEvent = new CustomEvent('dealCleared');
+    document.dispatchEvent(dealClearedEvent);
+    
+    // If we're in expanded-plus view, switch back to regular view
+    const widget = document.getElementById('deal-chat-widget');
+    if (widget && widget.classList.contains('widget-expanded-plus')) {
+        widget.classList.remove('widget-expanded-plus');
+        widget.classList.add('widget-expanded');
+        widget.style.width = '320px';
+        
+        // Hide deal content pane
+        const dealContentPane = widget.querySelector('.deal-content-pane');
+        if (dealContentPane) dealContentPane.style.display = 'none';
+    }
+}
+
+/**
+ * Send a test chat message
+ */
+function sendChatMessage(text) {
+    console.log('Test: Sending chat message', text);
+    
+    // Set the chat input value
+    const chatInput = document.getElementById('chatInput');
+    if (chatInput) {
+        chatInput.value = text;
+        
+        // Find and click the send button
+        const sendBtn = document.querySelector('.send-btn');
+        if (sendBtn) {
+            sendBtn.click();
+        }
+    }
+}
+
+/**
+ * Show the deal content pane
+ */
+function showDealContent() {
+    const widget = document.getElementById('deal-chat-widget');
+    if (widget) {
+        // If widget is collapsed, expand it first
+        if (widget.classList.contains('widget-collapsed')) {
+            const collapseBtn = widget.querySelector('.collapse-btn');
+            if (collapseBtn) collapseBtn.click();
+        }
+        
+        // Show deal content using expand-plus button
+        const expandPlusBtn = widget.querySelector('.expand-plus-btn');
+        if (expandPlusBtn && !widget.classList.contains('widget-expanded-plus')) {
+            expandPlusBtn.click();
+        }
+    }
+} 

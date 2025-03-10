@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deal Strategy Advisor - Debug Mode</title>
+    
+    <!-- NEW Dropdown Fix v2 - More robust implementation -->
+    <script src="js/dropdown-fix-v2.js"></script>
+    
+    <!-- Emergency Fix Script - Loads first to ensure it works even if other scripts fail -->
+    <script src="js/emergency-fix.js"></script>
+    
+    <!-- Deal Test Controls Script - Replaces test deals with real ones -->
+    <script src="js/deal-test-controls.js"></script>
+    
+    <!-- Direct event handlers for critical functionality -->
+    <script src="js/direct-handlers.js"></script>
+    
+    <!-- Critical CSS Fix: Force basic interactivity even if regular CSS is broken -->
+    <style>
+        /* Force pointer events to work on clickable elements */
+        button, a, .tab, [class*="btn"], [role="button"], .dropdown, .select-deal-btn {
+            pointer-events: auto !important;
+            cursor: pointer !important;
+        }
+        
+        /* Ensure modals and fixed elements don't block all interaction */
+        .modal-backdrop:not(.visible) {
+            display: none !important;
+        }
+        
+        /* Make sure no invisible overlays are blocking clicks */
+        body:before {
+            content: none !important;
+        }
+        
+        /* Ensure dropdowns can be clicked */
+        .dropdown-content {
+            z-index: 999 !important;
+        }
+        
+        /* Fix for potential event bubbling issues */
+        [data-tab], [data-deal], [data-dealtab] {
+            pointer-events: auto !important;
+        }
+
+        /* Fix scrolling issues */
+        html, body {
+            height: 100%;
+            width: 100%;
+            margin: 0;
+            padding: 0;
+            overflow-y: auto !important;
+            overflow-x: hidden;
+        }
+        
+        body {
+            padding: 20px;
+            font-family: 'Inter', sans-serif;
+            box-sizing: border-box;
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        
+        .debug-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            overflow: visible;
+        }
+        
+        .debug-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+            overflow: auto;
+        }
+        
+        .debug-section h2 {
+            margin-top: 0;
+            color: #4f89f2;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+        
+        .debug-actions {
+            margin: 20px 0;
+        }
+        
+        .debug-btn {
+            background-color: #4f89f2;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            margin-right: 10px;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        
+        .debug-btn:hover {
+            background-color: #3a6bc1;
+        }
+        
+        .deal-card {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 15px;
+            background-color: white;
+            cursor: pointer;
+            transition: box-shadow 0.3s;
+        }
+        
+        .deal-card:hover {
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .deal-card h3 {
+            margin-top: 0;
+            color: #333;
+        }
+        
+        .deal-card-details {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+        }
+        
+        .deal-card-value {
+            font-weight: bold;
+            color: #4f89f2;
+        }
+        
+        .deal-card-stage {
+            padding: 3px 8px;
+            border-radius: 10px;
+            font-size: 12px;
+            background-color: #e6f0ff;
+            color: #4f89f2;
+        }
+        
+        .active-deal {
+            border-left: 4px solid #4f89f2;
+            background-color: #f5f9ff;
+        }
+        
+        #dealWidget {
+            margin-top: 30px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            overflow: visible;
+            max-height: 600px;
+        }
+        
+        #dealDetails {
+            padding: 20px;
+            background-color: white;
+            overflow: auto;
+            max-height: 400px;
+        }
+        
+        pre {
+            background-color: #f5f5f5;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+            max-height: 400px;
+            font-size: 13px;
+        }
+        
+        /* Additional scrolling fixes */
+        .deal-content-body {
+            overflow-y: auto;
+            max-height: 400px;
+        }
+        
+        .chat-messages {
+            overflow-y: auto;
+            max-height: 300px;
+        }
+        
+        .widget-content {
+            overflow: visible;
+        }
+        
+        /* Ensure the widget sections can scroll independently */
+        #deal-chat-widget {
+            max-height: none;
+            overflow: visible;
+        }
+        
+        .panes-container {
+            display: flex;
+            overflow: visible;
+        }
+        
+        .chat-pane, .deal-content-pane {
+            overflow-y: auto;
+            max-height: 500px;
+        }
+        
+        /* Fix for diagnostic report scrolling */
+        #dealDetails pre {
+            overflow-y: auto;
+            max-height: 350px;
+        }
+        
+        /* Ensure deal content tabs are scrollable */
+        .deal-tab-content {
+            overflow-y: auto;
+            max-height: 350px;
+            padding-right: 5px;
+        }
+        
+        .deal-tab-content.overview-tab,
+        .deal-tab-content.files-tab,
+        .deal-tab-content.notes-tab,
+        .deal-tab-content.history-tab {
+            overflow-y: auto;
+            max-height: 350px;
+        }
+        
+        /* Fix for the widget layout */
+        .deal-content-pane {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        /* Ensure modal popups are scrollable */
+        .context-menu {
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        
+        /* Force all sections to be scrollable by default */
+        .debug-section {
+            max-height: 600px;
+            overflow-y: auto;
+        }
+        
+        /* Responsive scrolling */
+        @media (max-width: 768px) {
+            html, body {
+                -webkit-overflow-scrolling: touch; /* Improves scrolling on iOS devices */
+            }
+            
+            .debug-section {
+                max-height: none; /* Allow full scrolling on mobile */
+            }
+            
+            #dealWidget {
+                max-height: none;
+            }
+            
+            .deal-content-body, 
+            .chat-messages,
+            .deal-tab-content,
+            .chat-pane, 
+            .deal-content-pane {
+                max-height: 300px; /* Reduce heights on mobile */
+            }
+            
+            #dealDetails {
+                max-height: none;
+            }
+            
+            /* Improve touch scrolling */
+            .deal-tab-content, .chat-messages, #dealDetails pre {
+                -webkit-overflow-scrolling: touch;
+            }
+        }
+        
+        /* Fix for Firefox scrollbar issues */
+        * {
+            scrollbar-width: thin;
+        }
+        
+        /* Ensure scrollbars are visible but not obtrusive */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #bbb;
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: #999;
+        }
+    </style>
+    
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/widget.css">
+    <link rel="stylesheet" href="css/critical-dropdown-fix.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Immediate error recovery script - Runs as soon as the body is parsed -->
+    <script>
+        (function() {
+            // Create visual error feedback
+            function showErrorBanner(message) {
+                const banner = document.createElement('div');
+                banner.style.background = '#ffeeee';
+                banner.style.color = '#d32f2f';
+                banner.style.padding = '15px';
+                banner.style.margin = '10px';
+                banner.style.borderRadius = '5px';
+                banner.style.borderLeft = '5px solid #d32f2f';
+                banner.style.position = 'relative';
+                banner.innerHTML = `
+                    <h3 style="margin-top: 0; margin-bottom: 10px;">Script Loading Error</h3>
+                    <p>${message}</p>
+                    <p>Using fallback implementations to recover functionality.</p>
+                    <button onclick="location.reload()" style="padding: 8px 16px; background: #4f89f2; color: white; border: none; 
+                    border-radius: 4px; cursor: pointer; margin-top: 10px;">Reload Page</button>
+                    <button onclick="this.parentNode.style.display='none'" style="position: absolute; top: 10px; right: 10px; 
+                    background: none; border: none; font-size: 20px; cursor: pointer;">×</button>
+                `;
+                
+                // Add to the page
+                document.body.insertBefore(banner, document.body.firstChild);
+                
+                return banner;
+            }
+            
+            // Check for script loading issues immediately
+            window.addEventListener('load', function() {
+                console.log('Immediate error recovery: Page load event fired');
+                
+                setTimeout(function() {
+                    const missingScripts = [];
+                    
+                    if (typeof window.dealStore === 'undefined') {
+                        missingScripts.push('dealData.js');
+                    }
+                    
+                    if (typeof renderDealOverview !== 'function') {
+                        missingScripts.push('dealContent.js');
+                    }
+                    
+                    if (missingScripts.length > 0) {
+                        console.error('Missing or failed scripts detected on load:', missingScripts);
+                        
+                        // Show visual error
+                        const banner = showErrorBanner(`
+                            The following scripts failed to load or initialize properly:
+                            <ul style="margin-bottom: 5px;">
+                                ${missingScripts.map(script => `<li>${script}</li>`).join('')}
+                            </ul>
+                        `);
+                        
+                        // Flag the page as having errors for debug interface
+                        window.hasScriptLoadingErrors = true;
+                        
+                        // Force immediate initialization of fallbacks
+                        if (typeof initializeFallbackDealStore === 'function' && typeof window.dealStore === 'undefined') {
+                            console.log('Forced initialization of fallback dealStore');
+                            initializeFallbackDealStore();
+                        }
+                        
+                        // Force initialization of tab listeners
+                        if (typeof window.initDealTabListeners === 'function') {
+                            console.log('Forced initialization of deal tab listeners');
+                            window.initDealTabListeners();
+                        }
+                    }
+                }, 1000); // Check after 1 second to give scripts time to load
+            });
+        })();
+    </script>
+    
+    <div class="debug-container">
+        <h1>Deal Strategy Advisor - Debug Mode</h1>
+        
+        <div class="debug-section">
+            <h2>Available Deals</h2>
+            <p>Click on a deal to view its details and load it into the widget:</p>
+            <div id="availableDeals">
+                <!-- Deals will be loaded here -->
+                <div class="deal-card">
+                    <h3>Inline Fallback Deal</h3>
+                    <div class="deal-card-details">
+                        <div class="deal-card-value">$85,000</div>
+                        <div class="deal-card-stage">Qualification</div>
+                    </div>
+                </div>
+            </div>
+            <div class="debug-actions">
+                <button class="debug-btn" onclick="runDiagnostics()">Run Diagnostics</button>
+            </div>
+        </div>
+
+        <div class="debug-section">
+            <h2>Deal Details</h2>
+            <div id="dealDetails">
+                <p>Select a deal to view its details</p>
+            </div>
+        </div>
+
+        <div class="debug-section">
+            <h2>Deal Widget Preview</h2>
+            <div id="dealWidget">
+                <!-- Widget will be displayed here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script>
+        // Log script loading attempts before we try to load them
+        console.log('About to load dealData.js and other scripts...');
+    </script>
+    
+    <!-- First, load dealData.js with explicit logging and window exposure -->
+    <script src="js/dealData.js"></script>
+    <script>
+        console.log('dealData.js load attempted. Checking dealStore...');
+        // Ensure dealStore is exposed to window
+        if (typeof dealStore !== 'undefined' && typeof window.dealStore === 'undefined') {
+            console.log('dealStore exists but not on window - fixing...');
+            window.dealStore = dealStore;
+        }
+        
+        // If dealStore still doesn't exist, create a minimal version
+        if (typeof window.dealStore === 'undefined') {
+            console.log('Creating fallback dealStore...');
+            window.dealStore = {
+                deals: {
+                    'fallback-deal-1': {
+                        id: 'fallback-deal-1',
+                        name: 'Acme Corporation (Fallback)',
+                        value: '$52,500',
+                        stage: 'Proposal',
+                        closeDate: '2024-05-15',
+                        industry: 'Manufacturing',
+                        contacts: [],
+                        notes: [],
+                        files: []
+                    },
+                    'fallback-deal-2': {
+                        id: 'fallback-deal-2',
+                        name: 'TechStar Inc (Fallback)',
+                        value: '$78,500',
+                        stage: 'Negotiation',
+                        closeDate: '2024-04-30',
+                        industry: 'Software & Technology',
+                        contacts: [],
+                        notes: [],
+                        files: []
+                    },
+                    'fallback-deal-3': {
+                        id: 'fallback-deal-3',
+                        name: 'Global Systems (Fallback)',
+                        value: '$124,000',
+                        stage: 'Discovery',
+                        closeDate: '2024-07-31',
+                        industry: 'Financial Services',
+                        contacts: [],
+                        notes: [],
+                        files: []
+                    }
+                },
+                currentDeal: null,
+                selectDeal: function(dealId) {
+                    this.currentDeal = this.deals[dealId];
+                    console.log(`Selected deal: ${dealId}`);
+                },
+                clearDeal: function() {
+                    this.currentDeal = null;
+                    console.log('Cleared deal');
+                }
+            };
+            console.log('Fallback dealStore created with sample deals');
+        } else {
+            console.log('dealStore exists on window object with ' + 
+                        Object.keys(window.dealStore.deals).length + ' deals');
+        }
+    </script>
+    
+    <!-- Then load the remaining scripts -->
+    <script src="js/dealContent.js"></script>
+    <script>
+        console.log('dealContent.js load attempted. Checking for renderDealOverview function...');
+        // Check if the necessary functions are available
+        if (typeof renderDealOverview !== 'function') {
+            console.log('renderDealOverview not found - creating fallback functions...');
+            
+            // Create minimal fallback functions
+            window.renderDealOverview = function(deal) {
+                console.log('Fallback renderDealOverview called for', deal?.name);
+            };
+            
+            window.renderDealFiles = function(deal) {
+                console.log('Fallback renderDealFiles called for', deal?.name);
+            };
+            
+            window.renderDealHistory = function(deal) {
+                console.log('Fallback renderDealHistory called for', deal?.name);
+            };
+            
+            console.log('Fallback content rendering functions created');
+        } else {
+            console.log('dealContent.js loaded successfully');
+        }
+    </script>
+    
+    <script src="js/chatWidget.js"></script>
+    <script src="js/main.js"></script>
+    <script>
+        // Initialize the debug view
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Debug mode initialized');
+            
+            // Output a detailed status of all critical dependencies
+            console.log('DEPENDENCY CHECK:');
+            console.log('- dealStore available:', typeof window.dealStore !== 'undefined');
+            console.log('- dealStore.deals count:', window.dealStore ? Object.keys(window.dealStore.deals).length : 0);
+            console.log('- renderDealOverview available:', typeof renderDealOverview === 'function');
+            console.log('- selectDeal available:', typeof selectDeal === 'function');
+            
+            // Load deal widget preview
+            loadWidgetPreview();
+            
+            // Load available deals
+            loadAvailableDeals();
+            
+            // Attach events to handle deal selection
+            setupDealSelectionEvents();
+        });
+        
+        // Fix to ensure all deals from dealData.js are displayed
+        function loadAvailableDeals() {
+            // Wait for dealStore to be available
+            if (window.dealStore && window.dealStore.deals) {
+                const dealsContainer = document.getElementById('availableDeals');
+                
+                // Clear existing content first
+                dealsContainer.innerHTML = '';
+                
+                // Loop through all deals in dealStore
+                Object.keys(window.dealStore.deals).forEach(dealId => {
+                    const deal = window.dealStore.deals[dealId];
+                    
+                    // Create a card for each deal
+                    const dealCard = document.createElement('div');
+                    dealCard.className = 'deal-card';
+                    dealCard.setAttribute('data-deal-id', dealId);
+                    
+                    dealCard.innerHTML = `
+                        <h3>${deal.name}</h3>
+                        <div class="deal-card-details">
+                            <div class="deal-card-value">${deal.value}</div>
+                            <div class="deal-card-stage">${deal.stage}</div>
+                        </div>
+                    `;
+                    
+                    // Add click event to select the deal
+                    dealCard.addEventListener('click', function() {
+                        selectDebugDeal(dealId);
+                    });
+                    
+                    // Add to container
+                    dealsContainer.appendChild(dealCard);
+                });
+                
+                console.log(`Loaded ${Object.keys(window.dealStore.deals).length} deals`);
+            } else {
+                // If dealStore is not available, add a fallback deal
+                const dealsContainer = document.getElementById('availableDeals');
+                dealsContainer.innerHTML = `
+                    <div class="deal-card">
+                        <h3>Inline Fallback Deal</h3>
+                        <div class="deal-card-details">
+                            <div class="deal-card-value">$85,000</div>
+                            <div class="deal-card-stage">Qualification</div>
+                        </div>
+                    </div>
+                    <p style="color: red;">⚠️ Deal data not loaded correctly. Check console for errors.</p>
+                `;
+                console.error('Deal data not available. Make sure dealData.js is loaded properly.');
+            }
+        }
+        
+        // Function to handle deal selection in debug mode
+        function selectDebugDeal(dealId) {
+            console.log(`Selecting deal: ${dealId}`);
+            
+            // Update the UI to reflect the selected deal
+            document.querySelectorAll('.deal-card').forEach(card => {
+                card.classList.remove('active-deal');
+                if (card.getAttribute('data-deal-id') === dealId) {
+                    card.classList.add('active-deal');
+                }
+            });
+            
+            // Show deal details in the details panel
+            const deal = window.dealStore.deals[dealId];
+            if (deal) {
+                const detailsContainer = document.getElementById('dealDetails');
+                detailsContainer.innerHTML = `
+                    <h3>${deal.name}</h3>
+                    <p><strong>Value:</strong> ${deal.value}</p>
+                    <p><strong>Stage:</strong> ${deal.stage}</p>
+                    <p><strong>Close Date:</strong> ${deal.closeDate || 'Not set'}</p>
+                    <p><strong>Industry:</strong> ${deal.industry || 'Not specified'}</p>
+                    <hr>
+                    <h4>Load Deal into Widget</h4>
+                    <button class="debug-btn" onclick="loadDealIntoWidget('${dealId}')">Load Selected Deal</button>
+                `;
+            }
+        }
+        
+        // Function to load the deal into the widget
+        function loadDealIntoWidget(dealId) {
+            // Try to use the existing selectDeal function first
+            if (typeof window.selectDeal === 'function') {
+                try {
+                    window.selectDeal(dealId);
+                    console.log(`Deal ${dealId} loaded into widget using selectDeal`);
+                    return;
+                } catch (e) {
+                    console.error('Error using selectDeal:', e);
+                }
+            }
+            
+            // Fallback to other methods
+            try {
+                // Try clicking the dropdown option directly
+                const dealOption = document.querySelector(`[data-deal="${dealId}"]`);
+                if (dealOption) {
+                    dealOption.click();
+                    console.log(`Deal ${dealId} loaded by clicking option`);
+                    return;
+                }
+            } catch (e) {
+                console.error('Error clicking deal option:', e);
+            }
+            
+            alert('Could not load deal into widget. See console for details.');
+        }
+        
+        // Function to load the widget preview
+        function loadWidgetPreview() {
+            const widgetContainer = document.getElementById('dealWidget');
+            if (!widgetContainer) return;
+            
+            // Load the widget preview asynchronously
+            setTimeout(() => {
+                console.log('Loading widget preview...');
+                // This will be simplified for the debug view
+                widgetContainer.innerHTML = `
+                    <div id="deal-chat-widget" class="widget-container">
+                        <div class="widget-header">
+                            <h3>Deal Advisor Widget Preview</h3>
+                        </div>
+                        <div class="widget-content">
+                            <div class="deal-context-bar">
+                                <div class="no-deal-state active">
+                                    <span class="no-deal-label">No deal selected</span>
+                                    <button class="select-deal-btn">Select Deal</button>
+                                </div>
+                                <div class="active-deal-state">
+                                    <div class="deal-info">
+                                        <span class="active-deal-name"></span>
+                                        <span class="deal-stage-pill"></span>
+                                    </div>
+                                    <div class="deal-actions">
+                                        <button class="clear-deal-btn">Clear</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }, 500);
+        }
+        
+        // Set up event handlers for deal selection
+        function setupDealSelectionEvents() {
+            // We already set up click handlers when we create the cards
+            console.log('Deal selection event handlers set up');
+        }
+        
+        function runDiagnostics() {
+            console.log('🔍 Running diagnostics...');
+            
+            // Create diagnostic report
+            let report = '🔍 DIAGNOSTIC REPORT 🔍\n\n';
+            
+            // Check for critical scripts
+            report += '📜 Script Loading:\n';
+            report += `- emergency-fix.js: ${typeof window.emergencyModeActive !== 'undefined' ? '✅' : '❌'}\n`;
+            report += `- direct-handlers.js: ${typeof setupDirectHandlers === 'function' ? '✅' : '❌'}\n`;
+            report += `- dealData.js: ${typeof window.dealStore !== 'undefined' ? '✅' : '❌'}\n`;
+            report += `- dealContent.js: ${typeof renderDealOverview === 'function' ? '✅' : '❌'}\n`;
+            report += `- chatWidget.js: ${typeof initChatWidget === 'function' ? '✅' : '❌'}\n`;
+            report += `- main.js: ${typeof selectDeal === 'function' ? '✅' : '❌'}\n`;
+            report += `- Inline Fallbacks Active: ${typeof window.dealStore !== 'undefined' && typeof window.renderDealOverview === 'function' ? '✅' : '❌'}\n\n`;
+            
+            // Check for important UI elements
+            report += '🖥️ UI Elements:\n';
+            report += `- Deal dropdown: ${document.querySelector('.select-deal-btn') ? '✅' : '❌'}\n`;
+            report += `- Clear deal button: ${document.querySelector('.clear-deal-btn') ? '✅' : '❌'}\n`;
+            report += `- Deal tabs: ${document.querySelector('.deal-tab-btn') ? '✅' : '❌'}\n`;
+            report += `- Chat input: ${document.querySelector('.chat-input') ? '✅' : '❌'}\n\n`;
+            
+            // Check for deal data
+            if (window.dealStore && window.dealStore.deals) {
+                const dealCount = Object.keys(window.dealStore.deals).length;
+                report += `📊 Deal Data: ${dealCount} deals found ✅\n`;
+                
+                // First deal info
+                if (dealCount > 0) {
+                    const firstDealId = Object.keys(window.dealStore.deals)[0];
+                    const firstDeal = window.dealStore.deals[firstDealId];
+                    report += `- Sample deal: ${firstDeal.name} (${firstDeal.value})\n`;
+                    report += `- Deal source: ${firstDealId.startsWith('fallback') || firstDealId.startsWith('inline') ? 'Fallback data' : 'External data'}\n`;
+                }
+            } else {
+                report += '📊 Deal Data: Not available ❌\n';
+            }
+            
+            // Check for tab functionality
+            report += '\n🧪 Functionality Tests:\n';
+            try {
+                const tabWorking = typeof window.initDealTabListeners === 'function';
+                report += `- Tab switching: ${tabWorking ? '✅' : '❌'}\n`;
+                
+                const contentRenderingWorking = typeof window.renderDealOverview === 'function' && 
+                                              typeof window.renderDealFiles === 'function' && 
+                                              typeof window.renderDealHistory === 'function';
+                report += `- Content rendering: ${contentRenderingWorking ? '✅' : '❌'}\n`;
+                
+                const dealSelectionWorking = typeof window.dealStore.selectDeal === 'function';
+                report += `- Deal selection: ${dealSelectionWorking ? '✅' : '❌'}\n`;
+                
+                const dealClearingWorking = typeof window.dealStore.clearDeal === 'function';
+                report += `- Deal clearing: ${dealClearingWorking ? '✅' : '❌'}\n`;
+            } catch (e) {
+                report += `- Error testing functionality: ${e.message}\n`;
+            }
+            
+            // Create a clean display for the report
+            const dealDetails = document.getElementById('dealDetails');
+            dealDetails.innerHTML = `
+                <h3>Diagnostic Report</h3>
+                <pre style="background-color: #f5f5f5; padding: 15px; border-radius: 5px; overflow: auto; max-height: 400px;">${report}</pre>
+                <button class="debug-btn" onclick="document.getElementById('dealDetails').innerHTML = '<p>Select a deal to view its details</p>'">Close Report</button>
+            `;
+            
+            console.log(report);
+            
+            // Try to fix common issues
+            if (typeof setupDirectHandlers === 'function' && !document.querySelector('.dropdown-content.show')) {
+                console.log('🔧 Attempting to reinstall direct handlers...');
+                try {
+                    setupDirectHandlers();
+                } catch (e) {
+                    console.error('Error reinstalling direct handlers:', e);
+                }
+            }
+            
+            // Try to initialize tab listeners if needed
+            if (typeof window.initDealTabListeners === 'function') {
+                console.log('🔧 Reinitializing deal tab listeners...');
+                try {
+                    window.initDealTabListeners();
+                } catch (e) {
+                    console.error('Error reinitializing deal tab listeners:', e);
+                }
+            }
+        }
+    </script>
+    
+    <!-- Recovery script to handle page freezes -->
+    <script src="js/recovery.js"></script>
+    
+    <!-- Final verification script that ensures deals are displayed -->
+    <script src="js/debug-verify.js"></script>
+</body>
+</html> 

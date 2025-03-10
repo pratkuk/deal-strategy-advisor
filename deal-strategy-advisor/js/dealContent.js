@@ -111,7 +111,9 @@ export function init() {
     }
 }
 
-// Handle when a deal is selected
+/**
+ * Handle when a deal is selected
+ */
 function handleDealSelected(event) {
     const dealId = event.detail.dealId;
     
@@ -119,11 +121,49 @@ function handleDealSelected(event) {
     const deal = DealData.setCurrentDeal(dealId);
     if (!deal) return;
     
+    console.log('Deal Content: Deal selected:', dealId, deal.name);
+    
     // Hide no deal selected elements
     noDealElements.forEach(el => el.classList.remove('active'));
     
     // Populate deal data in the UI
     populateDealData(deal);
+    
+    // Make sure the deal content is visible
+    showDealContent();
+}
+
+/**
+ * Show deal content by activating tabs and expanding if needed
+ */
+function showDealContent() {
+    const widget = document.getElementById('deal-chat-widget');
+    const dealContentPane = document.querySelector('.deal-content-pane');
+    
+    if (widget && dealContentPane) {
+        // If not already in expanded-plus mode, try to expand
+        if (!widget.classList.contains('widget-expanded-plus')) {
+            // If widget is collapsed, expand it first
+            if (widget.classList.contains('widget-collapsed')) {
+                widget.classList.remove('widget-collapsed');
+                widget.classList.add('widget-expanded');
+                widget.style.height = '500px';
+            }
+            
+            // Expand to show deal content
+            widget.classList.remove('widget-expanded');
+            widget.classList.add('widget-expanded-plus');
+            widget.style.width = '700px';
+            widget.style.height = '500px';
+            
+            // Show deal content pane
+            dealContentPane.style.display = 'block';
+            
+            // Ensure chat pane is visible too
+            const chatPane = widget.querySelector('.chat-pane');
+            if (chatPane) chatPane.style.display = 'block';
+        }
+    }
 }
 
 // Handle when a deal is cleared
@@ -147,8 +187,12 @@ function handleDealCleared() {
     dealSections.timeline.innerHTML = '<p class="no-history-message">No history available</p>';
 }
 
-// Populate deal data in the UI
+/**
+ * Populate deal data in the UI
+ */
 function populateDealData(deal) {
+    console.log('Populating deal data:', deal.id, deal.name);
+    
     // Format deal data for display
     const formattedDeal = DealData.formatDealData(deal);
     
@@ -169,9 +213,11 @@ function populateDealData(deal) {
     
     // Update files
     renderFiles(formattedDeal.files);
+    console.log('Rendered files:', formattedDeal.files.length);
     
     // Update history timeline
     renderTimeline(formattedDeal.history);
+    console.log('Rendered timeline items:', formattedDeal.history.length);
     
     // Also update the form fields for editing
     if (dealSections.editCompanyInput) {
@@ -433,8 +479,17 @@ function removeNote(noteId) {
     }
 }
 
-// Render files
+/**
+ * Render files
+ */
 function renderFiles(files) {
+    if (!dealSections.filesList) {
+        console.error("Files list element not found");
+        return;
+    }
+    
+    console.log("Rendering files:", files.length);
+    
     dealSections.filesList.innerHTML = '';
     
     if (files.length === 0) {
@@ -504,8 +559,17 @@ function removeFile(fileId) {
     }
 }
 
-// Render timeline
+/**
+ * Render timeline
+ */
 function renderTimeline(historyItems) {
+    if (!dealSections.timeline) {
+        console.error("Timeline element not found");
+        return;
+    }
+    
+    console.log("Rendering timeline:", historyItems.length);
+    
     dealSections.timeline.innerHTML = '';
     
     if (historyItems.length === 0) {
@@ -619,4 +683,389 @@ function handleFileUpload() {
             renderFiles(DealData.formatDealData(DealData.getCurrentDeal()).files);
         }
     });
-} 
+}
+
+// Function to render deal overview content with performance optimizations
+function renderDealOverview(deal) {
+    if (!deal) return '';
+    
+    try {
+        // Basic deal summary - lightweight rendering
+        let html = `
+            <div class="deal-overview-container">
+                <div class="overview-section">
+                    <h3>Deal Summary</h3>
+                    <div class="deal-summary">
+                        <div class="deal-summary-item">
+                            <div class="label">Deal Value:</div>
+                            <div class="value">${deal.value || 'N/A'}</div>
+                        </div>
+                        <div class="deal-summary-item">
+                            <div class="label">Stage:</div>
+                            <div class="value">${deal.stage || 'N/A'}</div>
+                        </div>
+                        <div class="deal-summary-item">
+                            <div class="label">Close Date:</div>
+                            <div class="value">${deal.closeDate || 'N/A'}</div>
+                        </div>
+                        <div class="deal-summary-item">
+                            <div class="label">Industry:</div>
+                            <div class="value">${deal.industry || 'N/A'}</div>
+                        </div>
+                    </div>
+                </div>`;
+
+        // Company information - with safe checks
+        if (deal.company) {
+            html += `
+                <div class="overview-section">
+                    <h3>Company Information</h3>
+                    <div class="company-info">
+                        <div class="info-grid">`;
+                        
+            // Safely add company properties
+            const companyProps = [
+                { label: 'Company Size', value: deal.company.size },
+                { label: 'Annual Revenue', value: deal.company.revenue },
+                { label: 'Location', value: deal.company.location },
+                { label: 'Founded', value: deal.company.founded },
+                { label: 'Website', value: deal.company.website },
+                { label: 'Segment', value: deal.company.segment }
+            ];
+            
+            companyProps.forEach(prop => {
+                html += `
+                    <div class="info-item">
+                        <div class="label">${prop.label}:</div>
+                        <div class="value">${prop.value || 'N/A'}</div>
+                    </div>`;
+            });
+            
+            html += `</div>`;
+            
+            // Description if available
+            if (deal.company.description) {
+                html += `
+                    <div class="description-item">
+                        <div class="label">Description:</div>
+                        <div class="value">${deal.company.description}</div>
+                    </div>`;
+            }
+            
+            html += `</div></div>`;
+        }
+        
+        // Add remaining sections with performance limits (max items)
+        
+        // Contacts section - limit to 10 contacts to prevent freezing on large datasets
+        const maxContacts = 10;
+        html += `
+            <div class="overview-section">
+                <h3>Key Contacts ${deal.contacts.length > maxContacts ? `(showing ${maxContacts} of ${deal.contacts.length})` : ''}</h3>
+                <div class="contacts-info">`;
+                
+        // Get a limited subset of contacts
+        const displayContacts = deal.contacts.slice(0, maxContacts);
+        
+        displayContacts.forEach(contact => {
+            html += `
+                <div class="contact-card">
+                    <div class="contact-header">
+                        <h4>${contact.name || 'No Name'}</h4>
+                        <div class="contact-title">${contact.title || 'No Title'}</div>
+                    </div>
+                    <div class="contact-details">
+                        <div class="contact-detail">
+                            <span class="icon">📧</span>
+                            <span>${contact.email || 'No Email'}</span>
+                        </div>`;
+                        
+            if (contact.phone) {
+                html += `
+                    <div class="contact-detail">
+                        <span class="icon">📱</span>
+                        <span>${contact.phone}</span>
+                    </div>`;
+            }
+            
+            if (contact.role) {
+                html += `
+                    <div class="contact-detail">
+                        <span class="icon">👤</span>
+                        <span>Role: ${contact.role}</span>
+                    </div>`;
+            }
+            
+            if (contact.influence) {
+                html += `
+                    <div class="contact-detail">
+                        <span class="icon">⚖️</span>
+                        <span>Influence: ${contact.influence}</span>
+                    </div>`;
+            }
+            
+            html += `</div>`;
+            
+            if (contact.notes) {
+                html += `
+                    <div class="contact-notes">
+                        <div class="notes-label">Notes:</div>
+                        <div class="notes-text">${contact.notes}</div>
+                    </div>`;
+            }
+            
+            html += `</div>`;
+        });
+        
+        html += `</div></div>`;
+        
+        // Close the main container
+        html += `</div>`;
+        
+        return html;
+    } catch (error) {
+        console.error('Error rendering deal overview:', error);
+        return '<div class="error-message">Error loading deal overview. Please try again.</div>';
+    }
+}
+
+// Function to render deal files content
+function renderDealFiles(deal) {
+    if (!deal || !deal.files || deal.files.length === 0) {
+        return '<div class="no-files-message">No files available for this deal.</div>';
+    }
+    
+    return `
+        <div class="files-container">
+            <div class="files-list">
+                ${deal.files.map(file => `
+                <div class="file-item">
+                    <div class="file-icon">${getFileIcon(file.type)}</div>
+                    <div class="file-details">
+                        <div class="file-name">${file.name}</div>
+                        <div class="file-meta">
+                            <span class="file-date">${file.date}</span> • 
+                            <span class="file-size">${file.size}</span>
+                            ${file.author ? ` • <span class="file-author">Added by ${file.author}</span>` : ''}
+                        </div>
+                        ${file.description ? `<div class="file-description">${file.description}</div>` : ''}
+                    </div>
+                </div>
+                `).join('')}
+            </div>
+        </div>
+    `;
+}
+
+// Helper function to get file icon based on type
+function getFileIcon(type) {
+    const icons = {
+        'pdf': '📄',
+        'docx': '📝',
+        'xlsx': '📊',
+        'pptx': '📑',
+        'txt': '📃',
+        'csv': '📋',
+        'zip': '🗜️',
+        'jpg': '🖼️',
+        'png': '🖼️'
+    };
+    
+    return icons[type] || '📄';
+}
+
+// Function to render deal notes content
+function renderDealNotes(deal) {
+    if (!deal || !deal.notes || deal.notes.length === 0) {
+        return '<div class="no-notes-message">No notes available for this deal.</div>';
+    }
+    
+    const sortedNotes = [...deal.notes].sort((a, b) => {
+        return new Date(b.date) - new Date(a.date); // Sort by date descending (newest first)
+    });
+    
+    return `
+        <div class="notes-container">
+            <div class="notes-list">
+                ${sortedNotes.map(note => `
+                <div class="note-item">
+                    <div class="note-header">
+                        <div class="note-date">${formatDateForDisplay(note.date)}</div>
+                        ${note.author ? `<div class="note-author">by ${note.author}</div>` : ''}
+                    </div>
+                    <div class="note-content">${note.text}</div>
+                </div>
+                `).join('')}
+            </div>
+        </div>
+    `;
+}
+
+// Function to render deal history content
+function renderDealHistory(deal) {
+    if (!deal || !deal.history || deal.history.length === 0) {
+        return '<div class="no-history-message">No history available for this deal.</div>';
+    }
+    
+    const sortedHistory = [...deal.history].sort((a, b) => {
+        return new Date(b.date) - new Date(a.date); // Sort by date descending (newest first)
+    });
+    
+    return `
+        <div class="history-container">
+            <div class="timeline">
+                ${sortedHistory.map(item => `
+                <div class="timeline-item">
+                    <div class="timeline-marker"></div>
+                    <div class="timeline-content">
+                        <div class="timeline-date">${formatDateForDisplay(item.date)}</div>
+                        <div class="timeline-title">${item.title}</div>
+                        <div class="timeline-description">${item.description}</div>
+                    </div>
+                </div>
+                `).join('')}
+            </div>
+        </div>
+    `;
+}
+
+// Helper function to format dates for display
+function formatDateForDisplay(dateString) {
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const date = new Date(dateString);
+    
+    const day = date.getDate();
+    const month = months[date.getMonth()];
+    const year = date.getFullYear();
+    
+    return `${month} ${day}, ${year}`;
+}
+
+// Function to render deal tabs content with error protection
+function renderDealTabs(deal) {
+    if (!deal) return '';
+    
+    try {
+        // Inline rendering of tabs to avoid excessive function calls
+        const tabsHTML = `
+            <div class="deal-tabs">
+                <div class="tab active" data-tab="overview">Overview</div>
+                <div class="tab" data-tab="files">Files (${deal.files ? deal.files.length : 0})</div>
+                <div class="tab" data-tab="notes">Notes (${deal.notes ? deal.notes.length : 0})</div>
+                <div class="tab" data-tab="history">History (${deal.history ? deal.history.length : 0})</div>
+            </div>
+            <div class="tab-content">
+                <div class="tab-pane active" id="overview">
+                    <div class="loading-indicator">Loading overview...</div>
+                </div>
+                <div class="tab-pane" id="files">
+                    <div class="loading-indicator">Select tab to load files</div>
+                </div>
+                <div class="tab-pane" id="notes">
+                    <div class="loading-indicator">Select tab to load notes</div>
+                </div>
+                <div class="tab-pane" id="history">
+                    <div class="loading-indicator">Select tab to load history</div>
+                </div>
+            </div>
+        `;
+        
+        // Load the overview tab content after a brief delay to avoid freezing the UI
+        setTimeout(() => {
+            try {
+                const overviewTab = document.getElementById('overview');
+                if (overviewTab) {
+                    overviewTab.innerHTML = renderDealOverview(deal);
+                }
+            } catch (error) {
+                console.error('Error loading overview tab content:', error);
+            }
+        }, 100);
+        
+        return tabsHTML;
+    } catch (error) {
+        console.error('Error rendering deal tabs:', error);
+        return '<div class="error-message">Error loading deal tabs. Please try again.</div>';
+    }
+}
+
+// Function to initialize deal content tab listeners with error handling
+function initDealTabListeners() {
+    // Set up deal tab switching with deferred loading to avoid performance issues
+    document.addEventListener('click', function(event) {
+        try {
+            if (event.target.classList.contains('deal-tab-btn')) {
+                const tabName = event.target.getAttribute('data-dealtab');
+                console.log('Deal tab clicked:', tabName);
+                
+                // Update active tab UI
+                document.querySelectorAll('.deal-tab-btn').forEach(tab => {
+                    tab.classList.remove('active');
+                });
+                event.target.classList.add('active');
+                
+                // Update content
+                document.querySelectorAll('.deal-tab-content').forEach(content => {
+                    content.classList.remove('active');
+                });
+                
+                const contentToShow = document.querySelector(`.${tabName}-tab`);
+                if (contentToShow) {
+                    contentToShow.classList.add('active');
+                    
+                    // Lazy load content when tab is clicked to improve performance
+                    if (tabName !== 'overview' && dealStore && dealStore.currentDeal) {
+                        const deal = dealStore.deals[dealStore.currentDeal];
+                        if (deal) {
+                            // Show loading indicator
+                            contentToShow.innerHTML = '<div class="loading-indicator">Loading content...</div>';
+                            
+                            // Load content after a slight delay to avoid freezing the UI
+                            setTimeout(() => {
+                                try {
+                                    switch (tabName) {
+                                        case 'files':
+                                            contentToShow.innerHTML = renderDealFiles(deal);
+                                            break;
+                                        case 'notes':
+                                            contentToShow.innerHTML = renderDealNotes(deal);
+                                            break;
+                                        case 'history':
+                                            contentToShow.innerHTML = renderDealHistory(deal);
+                                            break;
+                                    }
+                                } catch (error) {
+                                    console.error(`Error loading ${tabName} tab content:`, error);
+                                    contentToShow.innerHTML = `<div class="error-message">Error loading ${tabName}. Please try again.</div>`;
+                                }
+                            }, 50);
+                        }
+                    }
+                }
+            }
+        } catch (error) {
+            console.error('Error in tab click handler:', error);
+        }
+    });
+    
+    console.log('Deal tab listeners initialized');
+}
+
+// Export the functions to window for global access
+window.dealContent = {
+    renderDealTabs,
+    renderDealOverview,
+    renderDealFiles,
+    renderDealNotes,
+    renderDealHistory,
+    initDealTabListeners
+}; 
+
+// CRITICAL: Also expose critical functions directly on window
+window.renderDealOverview = renderDealOverview;
+window.renderDealFiles = renderDealFiles;
+window.renderDealHistory = renderDealHistory;
+window.renderDealNotes = renderDealNotes;
+window.initDealTabListeners = initDealTabListeners;
+
+console.log('dealContent.js: Functions successfully exposed to window object'); 

@@ -4,7 +4,139 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sales Workspace</title>
+    
+    <!-- NEW Dropdown Fix v2 - More robust implementation -->
+    <script src="js/dropdown-fix-v2.js"></script>
+    
+    <!-- Emergency Fix Script - Loads first to ensure it works even if other scripts fail -->
+    <script src="js/emergency-fix.js"></script>
+    
+    <!-- Deal Test Controls Script - Replaces test deals with real ones -->
+    <script src="js/deal-test-controls.js"></script>
+    
+    <!-- Dedicated fix for Select Deal dropdown -->
+    <script src="js/select-deal-fix.js"></script>
+    
+    <!-- Workspace Tabs Fix - Ensures workspace tabs respond to clicks -->
+    <script src="js/workspace-fix.js"></script>
+    
+    <!-- Dropdown Fix - Ensures dropdowns expand when clicked -->
+    <script src="js/dropdown-fix.js"></script>
+    
+    <!-- Direct event handlers for critical functionality -->
+    <script src="js/direct-handlers.js"></script>
+    
+    <!-- Critical CSS Fix: Force basic interactivity even if regular CSS is broken -->
+    <style>
+        /* Force pointer events to work on clickable elements */
+        button, a, .tab, [class*="btn"], [role="button"], .dropdown, .select-deal-btn {
+            pointer-events: auto !important;
+            cursor: pointer !important;
+        }
+        
+        /* Ensure modals and fixed elements don't block all interaction */
+        .modal-backdrop:not(.visible) {
+            display: none !important;
+        }
+        
+        /* Make sure no invisible overlays are blocking clicks */
+        body:before {
+            content: none !important;
+        }
+        
+        /* Ensure dropdowns can be clicked */
+        .dropdown-content {
+            z-index: 999 !important;
+        }
+        
+        /* Fix for potential event bubbling issues */
+        [data-tab], [data-deal], [data-dealtab] {
+            pointer-events: auto !important;
+        }
+        
+        /* Special fix for workspace tabs */
+        .workspace-tabs .tab {
+            position: relative;
+            z-index: 100 !important;
+            pointer-events: auto !important;
+            cursor: pointer !important;
+        }
+        
+        /* Ensure workspace content is visible when active */
+        .workspace-content.active {
+            display: block !important;
+        }
+        
+        /* Force workspace content to be hidden when not active */
+        .workspace-content:not(.active) {
+            display: none !important;
+        }
+        
+        /* Dropdown fixes */
+        .dropdown {
+            position: relative !important;
+            display: inline-block !important;
+        }
+        
+        .dropdown-content {
+            display: none !important;
+            position: absolute !important;
+            background-color: #f9f9f9 !important;
+            min-width: 160px !important;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2) !important;
+            z-index: 9999 !important;
+            border-radius: 4px !important;
+        }
+        
+        /* Critical fix: When dropdown has show class, make it visible */
+        .dropdown-content.show {
+            display: block !important;
+        }
+        
+        /* Ensure dropdown items are visible and clickable */
+        .dropdown-content a {
+            color: black !important;
+            padding: 12px 16px !important;
+            text-decoration: none !important;
+            display: block !important;
+            pointer-events: auto !important;
+        }
+        
+        /* Hover effect for dropdown items */
+        .dropdown-content a:hover {
+            background-color: #f1f1f1 !important;
+        }
+        
+        /* Override any hover behavior that might interfere with click handling */
+        .dropdown:hover .dropdown-content:not(.show) {
+            display: none !important;
+        }
+        
+        /* FIXED: Agent dropdown expands UPWARD */
+        .widget-mode-selector .dropdown-content.show {
+            display: block !important;
+            position: absolute !important;
+            bottom: 100% !important; /* Position above button */
+            left: 0 !important;
+            z-index: 9999 !important;
+            margin-bottom: 5px !important;
+        }
+        
+        /* FIXED: Deal dropdown ALSO expands UPWARD (changed from downward) */
+        .no-deal-state .dropdown-content.show {
+            display: block !important;
+            position: absolute !important;
+            bottom: 100% !important; /* Changed from top to bottom - now positions above button */
+            left: 0 !important;
+            z-index: 9999 !important;
+            margin-bottom: 5px !important; /* Changed from margin-top */
+            min-width: 200px !important;
+        }
+    </style>
+    
     <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/widget-dropdowns.css">
+    <link rel="stylesheet" href="css/critical-dropdown-fix.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -427,603 +559,14 @@
         TESTING MODE
     </div>
 
-    <!-- Import main script as a module -->
-    <script type="module" src="js/main.js"></script>
-    
-    <!-- Import test script (only for testing) -->
+    <!-- Scripts -->
+    <script src="js/dealData.js"></script>
+    <script src="js/dealContent.js"></script>
+    <script src="js/chatWidget.js"></script>
+    <script src="js/main.js"></script>
     <script src="js/test.js"></script>
     
-    <!-- Debug script to help troubleshoot -->
-    <script>
-        console.log('Debug script loaded');
-        document.addEventListener('DOMContentLoaded', () => {
-            console.log('DOM fully loaded');
-            
-            // Debug workspace tabs
-            const workspaceTabs = document.querySelectorAll('.workspace-tabs .tab');
-            console.log('Workspace tabs found:', workspaceTabs.length);
-            
-            // Set up file upload button in chat
-            const fileUploadBtn = document.getElementById('fileUploadBtn');
-            if (fileUploadBtn) {
-                fileUploadBtn.addEventListener('click', function() {
-                    console.log('File upload button clicked');
-                    // Create a temporary file input element
-                    const fileInput = document.createElement('input');
-                    fileInput.type = 'file';
-                    fileInput.multiple = true;
-                    fileInput.accept = '.pdf,.docx,.txt,.eml';
-                    
-                    // Trigger click to open file dialog
-                    fileInput.click();
-                    
-                    // Handle file selection
-                    fileInput.addEventListener('change', function() {
-                        if (this.files.length > 0) {
-                            console.log('Files selected:', this.files.length);
-                            
-                            // Here we would normally process the files
-                            // For demo, just show a message that files were selected
-                            const chatMessages = document.querySelector('.chat-messages');
-                            if (chatMessages) {
-                                const messageDiv = document.createElement('div');
-                                messageDiv.className = 'message system';
-                                messageDiv.textContent = `${this.files.length} file(s) uploaded successfully.`;
-                                chatMessages.appendChild(messageDiv);
-                                chatMessages.scrollTop = chatMessages.scrollHeight;
-                            }
-                        }
-                    });
-                });
-            }
-            
-            // Setup deal content tabs
-            const dealTabBtns = document.querySelectorAll('.deal-tab-btn');
-            dealTabBtns.forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const dealTab = this.getAttribute('data-dealtab');
-                    console.log('Deal tab clicked:', dealTab);
-                    
-                    // Update active tab UI
-                    dealTabBtns.forEach(t => t.classList.remove('active'));
-                    this.classList.add('active');
-                    
-                    // Update content visibility
-                    document.querySelectorAll('.deal-tab-content').forEach(content => {
-                        content.classList.remove('active');
-                    });
-                    
-                    const tabContent = document.querySelector(`.${dealTab}-tab`);
-                    if (tabContent) {
-                        tabContent.classList.add('active');
-                    }
-                });
-            });
-            
-            // Widget mode dropdown functionality
-            const modeDropdown = document.querySelector('.widget-mode-selector .dropdown');
-            if (modeDropdown) {
-                const currentModeSpan = modeDropdown.querySelector('.current-mode');
-                const modeOptions = modeDropdown.querySelectorAll('.dropdown-content a');
-                const modeDropdownBtn = modeDropdown.querySelector('.mode-selector-btn');
-                const modeDropdownContent = modeDropdown.querySelector('.dropdown-content');
-                
-                // Add click handler to show/hide dropdown
-                modeDropdownBtn.addEventListener('click', function(event) {
-                    event.preventDefault();
-                    event.stopPropagation();
-                    
-                    // Close all dropdowns first
-                    document.querySelectorAll('.dropdown-content').forEach(dropdown => {
-                        if (dropdown !== modeDropdownContent) {
-                            dropdown.classList.remove('show');
-                        }
-                    });
-                    
-                    // Toggle dropdown visibility
-                    modeDropdownContent.classList.toggle('show');
-                    
-                    console.log('Mode dropdown clicked, show state:', modeDropdownContent.classList.contains('show'));
-                });
-                
-                modeOptions.forEach(option => {
-                    option.addEventListener('click', function(event) {
-                        event.preventDefault();
-                        event.stopPropagation();
-                        
-                        // Hide dropdown
-                        modeDropdownContent.classList.remove('show');
-                        
-                        // Only allow switching to Chat tab (agent)
-                        const tabName = this.getAttribute('data-tab');
-                        if (tabName !== 'agent') {
-                            console.log('Only Chat tab is available');
-                            alert('The ' + this.textContent + ' tab has been removed in this version.');
-                            return;
-                        }
-                        
-                        // Set as active in dropdown
-                        modeOptions.forEach(o => o.classList.remove('active'));
-                        this.classList.add('active');
-                        
-                        // Update current mode text
-                        currentModeSpan.textContent = this.textContent;
-                        
-                        // Update the chat tab to be active
-                        document.querySelectorAll('.tab-content').forEach(content => {
-                            content.classList.remove('active');
-                        });
-                        
-                        const chatTab = document.querySelector('.chat-tab');
-                        if (chatTab) {
-                            chatTab.classList.add('active');
-                        }
-                    });
-                });
-            }
-            
-            // Deal selection dropdown functionality
-            const dealDropdown = document.querySelector('.deal-context-bar .dropdown');
-            if (dealDropdown) {
-                const dealOptions = dealDropdown.querySelectorAll('.dropdown-content a');
-                const dealDropdownBtn = dealDropdown.querySelector('.select-deal-btn');
-                const dealDropdownContent = dealDropdown.querySelector('.dropdown-content');
-                
-                // Add click handler to show/hide dropdown
-                dealDropdownBtn.addEventListener('click', function(event) {
-                    event.preventDefault();
-                    event.stopPropagation();
-                    
-                    // Close all dropdowns first
-                    document.querySelectorAll('.dropdown-content').forEach(dropdown => {
-                        if (dropdown !== dealDropdownContent) {
-                            dropdown.classList.remove('show');
-                        }
-                    });
-                    
-                    // Toggle dropdown visibility
-                    dealDropdownContent.classList.toggle('show');
-                    
-                    console.log('Deal dropdown clicked, show state:', dealDropdownContent.classList.contains('show'));
-                });
-                
-                dealOptions.forEach(option => {
-                    option.addEventListener('click', function(event) {
-                        event.preventDefault();
-                        event.stopPropagation();
-                        
-                        // Hide dropdown
-                        dealDropdownContent.classList.remove('show');
-                        
-                        const dealId = this.getAttribute('data-deal');
-                        console.log('Deal selected:', dealId);
-                        
-                        // Simulate deal selection
-                        document.dispatchEvent(new CustomEvent('dealSelected', { 
-                            detail: { 
-                                dealId: dealId,
-                                dealName: this.textContent
-                            } 
-                        }));
-                    });
-                });
-            }
-            
-            // Close all dropdowns when clicking elsewhere on the document
-            document.addEventListener('click', function() {
-                document.querySelectorAll('.dropdown-content').forEach(dropdown => {
-                    dropdown.classList.remove('show');
-                });
-            });
-            
-            // Handle deal selection with expanded deal information
-            document.addEventListener('dealSelected', function(e) {
-                const dealId = e.detail.dealId;
-                const dealName = e.detail.dealName;
-                console.log('Deal selection event received:', dealId, dealName);
-                
-                // Update the deal context bar
-                document.querySelector('.deal-context-bar .no-deal-state').classList.remove('active');
-                document.querySelector('.deal-context-bar .active-deal-state').classList.add('active');
-                
-                // Update deal name in all locations
-                document.querySelectorAll('.deal-name, .active-deal-name').forEach(el => {
-                    el.textContent = dealName;
-                });
-                
-                // Update welcome messages
-                document.querySelector('.welcome-message.no-deal-message').classList.remove('active');
-                document.querySelector('.welcome-message.deal-message').classList.add('active');
-                
-                // Update deal details in the right pane
-                document.querySelectorAll('.no-deal-selected').forEach(el => {
-                    el.classList.remove('active');
-                });
-                
-                // Split the deal name into company and value (assuming format "Company - $Value")
-                const dealParts = dealName.split(' - ');
-                const company = dealParts[0];
-                const value = dealParts[1];
-                
-                // Update deal overview information
-                document.querySelector('.company-name').textContent = company;
-                document.querySelector('.deal-value').textContent = value;
-                
-                // Set some placeholder data for demo purposes
-                document.querySelector('.deal-stage').textContent = 'Negotiation';
-                document.querySelector('.close-date').textContent = '2024-06-30';
-                
-                // Mock adding a contact for demo
-                const contactsList = document.querySelector('.contacts-list');
-                contactsList.innerHTML = '';
-                contactsList.appendChild(createContactElement('Jane Smith', 'CEO', 'jane@example.com'));
-                
-                // Mock adding notes
-                const dealNotes = document.querySelector('.deal-notes');
-                dealNotes.innerHTML = '';
-                dealNotes.appendChild(createNoteElement('Initial meeting scheduled for next week.', '2024-03-15'));
-                dealNotes.appendChild(document.createElement('button')).className = 'add-note-btn';
-                dealNotes.querySelector('.add-note-btn').textContent = '+ Add Note';
-                
-                // Mock adding files
-                const filesList = document.querySelector('.files-list');
-                filesList.innerHTML = '';
-                filesList.appendChild(createFileElement('Proposal.pdf', '2024-03-10', '1.2 MB'));
-                filesList.appendChild(createFileElement('Contract_Draft.docx', '2024-03-12', '850 KB'));
-                
-                // Mock adding history timeline
-                const timeline = document.querySelector('.timeline-items');
-                timeline.innerHTML = '';
-                timeline.appendChild(createTimelineItem('Deal created', '2024-03-01', 'John Doe created this deal'));
-                timeline.appendChild(createTimelineItem('Stage updated', '2024-03-05', 'Deal moved to Negotiation stage'));
-                timeline.appendChild(createTimelineItem('File added', '2024-03-10', 'Proposal.pdf was uploaded'));
-                timeline.appendChild(createTimelineItem('Call scheduled', '2024-03-15', 'Meeting added to calendar'));
-            });
-            
-            // Helper functions to create UI elements
-            function createContactElement(name, title, email) {
-                const contact = document.createElement('div');
-                contact.className = 'contact-item';
-                contact.innerHTML = `
-                    <div class="contact-avatar">${name.charAt(0)}</div>
-                    <div class="contact-details">
-                        <div class="contact-name">${name}</div>
-                        <div class="contact-title">${title}</div>
-                        <div class="contact-email">${email}</div>
-                    </div>
-                    <button class="contact-action">✉</button>
-                `;
-                return contact;
-            }
-            
-            function createNoteElement(text, date) {
-                const note = document.createElement('div');
-                note.className = 'note-item';
-                note.innerHTML = `
-                    <div class="note-text">${text}</div>
-                    <div class="note-date">${date}</div>
-                `;
-                return note;
-            }
-            
-            function createFileElement(filename, date, size) {
-                const file = document.createElement('div');
-                file.className = 'file-item';
-                
-                // Determine file type icon
-                let icon = '📄';
-                if (filename.endsWith('.pdf')) icon = '📕';
-                if (filename.endsWith('.docx')) icon = '📘';
-                if (filename.endsWith('.xlsx')) icon = '📗';
-                if (filename.endsWith('.pptx')) icon = '📙';
-                
-                file.innerHTML = `
-                    <div class="file-icon">${icon}</div>
-                    <div class="file-details">
-                        <div class="file-name">${filename}</div>
-                        <div class="file-info">${date} · ${size}</div>
-                    </div>
-                    <button class="file-download">↓</button>
-                `;
-                return file;
-            }
-            
-            function createTimelineItem(title, date, description) {
-                const item = document.createElement('div');
-                item.className = 'timeline-item';
-                item.innerHTML = `
-                    <div class="timeline-point"></div>
-                    <div class="timeline-content">
-                        <div class="timeline-date">${date}</div>
-                        <div class="timeline-title">${title}</div>
-                        <div class="timeline-description">${description}</div>
-                    </div>
-                `;
-                return item;
-            }
-            
-            // Direct fix for workspace tabs
-            workspaceTabs.forEach(tab => {
-                tab.addEventListener('click', function() {
-                    const tabName = this.getAttribute('data-tab');
-                    console.log('Direct click on workspace tab:', tabName);
-                    
-                    // Update active tab UI
-                    workspaceTabs.forEach(t => t.classList.remove('active'));
-                    this.classList.add('active');
-                    
-                    // Update content
-                    document.querySelectorAll('.workspace-content').forEach(content => {
-                        content.classList.remove('active');
-                    });
-                    
-                    const targetContent = document.getElementById(`${tabName}-content`);
-                    if (targetContent) {
-                        targetContent.classList.add('active');
-                    }
-                });
-            });
-            
-            // Direct fix for widget tabs - now hidden but still functional
-            const widgetTabs = document.querySelectorAll('.widget-tabs .tab-btn');
-            widgetTabs.forEach(tab => {
-                tab.addEventListener('click', function() {
-                    const tabName = this.getAttribute('data-tab');
-                    console.log('Tab changed to:', tabName);
-                    
-                    // Only allow Chat tab (agent) to be active
-                    if (tabName !== 'agent') {
-                        console.log('Only Chat tab is available');
-                        return;
-                    }
-                    
-                    // Update active tab UI
-                    widgetTabs.forEach(t => t.classList.remove('active'));
-                    this.classList.add('active');
-                    
-                    // Ensure chat tab is active
-                    document.querySelectorAll('.tab-content').forEach(content => {
-                        content.classList.remove('active');
-                    });
-                    document.querySelector('.chat-tab').classList.add('active');
-                });
-            });
-            
-            // Fix the widget position and visibility
-            const widget = document.getElementById('deal-chat-widget');
-            if (widget) {
-                console.log('Widget found, setting up collapse/expand functionality');
-                
-                // Make sure it's visible initially
-                widget.classList.remove('widget-collapsed');
-                widget.classList.add('widget-expanded');
-                
-                // Position it properly
-                widget.style.position = 'fixed';
-                widget.style.bottom = '20px';
-                widget.style.right = '20px';
-                widget.style.zIndex = '1000';
-                widget.style.height = '500px';
-                
-                // Ensure content is visible
-                const widgetContent = widget.querySelector('.widget-content');
-                if (widgetContent) widgetContent.style.display = 'block';
-                
-                const controlsBar = widget.querySelector('.controls-bar');
-                if (controlsBar) controlsBar.style.display = 'flex';
-                
-                const chatInput = widget.querySelector('.chat-input-container');
-                if (chatInput) chatInput.style.display = 'flex';
-                
-                // Set up collapse/expand functionality
-                const collapseBtn = widget.querySelector('.collapse-btn');
-                const expandBtn = widget.querySelector('.expand-btn');
-                const expandPlusBtn = widget.querySelector('.expand-plus-btn');
-                
-                // Toggle widget collapse
-                if (collapseBtn) {
-                    console.log('Collapse button found, adding click handler');
-                    collapseBtn.addEventListener('click', function() {
-                        console.log('Collapse button clicked');
-                        if (widget.classList.contains('widget-collapsed')) {
-                            // Expand
-                            console.log('Expanding widget');
-                            widget.classList.remove('widget-collapsed');
-                            widget.classList.add('widget-expanded');
-                            widget.classList.remove('widget-expanded-plus');
-                            widget.style.height = '500px';
-                            widget.style.width = '320px';
-                            
-                            // Show content elements
-                            const widgetContent = widget.querySelector('.widget-content');
-                            if (widgetContent) widgetContent.style.display = 'block';
-                            
-                            const controlsBar = widget.querySelector('.controls-bar');
-                            if (controlsBar) controlsBar.style.display = 'flex';
-                            
-                            const chatInput = widget.querySelector('.chat-input-container');
-                            if (chatInput) chatInput.style.display = 'flex';
-                            
-                            // Hide deal content pane
-                            const dealContentPane = widget.querySelector('.deal-content-pane');
-                            if (dealContentPane) dealContentPane.style.display = 'none';
-                        } else {
-                            // Collapse
-                            console.log('Collapsing widget');
-                            widget.classList.add('widget-collapsed');
-                            widget.classList.remove('widget-expanded');
-                            widget.classList.remove('widget-expanded-plus');
-                            widget.style.height = '40px';
-                            widget.style.width = '320px';
-                            
-                            // Hide content elements
-                            const widgetContent = widget.querySelector('.widget-content');
-                            if (widgetContent) widgetContent.style.display = 'none';
-                            
-                            const controlsBar = widget.querySelector('.controls-bar');
-                            if (controlsBar) controlsBar.style.display = 'none';
-                            
-                            const chatInput = widget.querySelector('.chat-input-container');
-                            if (chatInput) chatInput.style.display = 'none';
-                        }
-                    });
-                }
-                
-                // Toggle widget expand-plus
-                if (expandPlusBtn) {
-                    console.log('Expand-plus button found, adding click handler');
-                    expandPlusBtn.addEventListener('click', function() {
-                        console.log('Expand-plus button clicked');
-                        
-                        if (widget.classList.contains('widget-collapsed')) {
-                            // If collapsed, first expand
-                            widget.classList.remove('widget-collapsed');
-                            widget.classList.add('widget-expanded');
-                        }
-                        
-                        if (!widget.classList.contains('widget-expanded-plus')) {
-                            // Switch to expanded-plus view
-                            widget.classList.remove('widget-expanded');
-                            widget.classList.add('widget-expanded-plus');
-                            widget.style.width = '700px';
-                            widget.style.height = '500px';
-                            
-                            // Show deal content pane
-                            const dealContentPane = widget.querySelector('.deal-content-pane');
-                            if (dealContentPane) dealContentPane.style.display = 'block';
-                            
-                            // Ensure chat pane is visible
-                            const chatPane = widget.querySelector('.chat-pane');
-                            if (chatPane) chatPane.style.display = 'block';
-                        } else {
-                            // Switch back to regular expanded view
-                            widget.classList.remove('widget-expanded-plus');
-                            widget.classList.add('widget-expanded');
-                            widget.style.width = '320px';
-                            
-                            // Hide deal content pane
-                            const dealContentPane = widget.querySelector('.deal-content-pane');
-                            if (dealContentPane) dealContentPane.style.display = 'none';
-                        }
-                    });
-                }
-                
-                // Toggle widget expand (maximize)
-                if (expandBtn) {
-                    console.log('Expand button found, adding click handler');
-                    expandBtn.addEventListener('click', function() {
-                        console.log('Expand button clicked');
-                        
-                        // If collapsed, first expand
-                        if (widget.classList.contains('widget-collapsed')) {
-                            widget.classList.remove('widget-collapsed');
-                            widget.classList.add('widget-expanded');
-                            widget.style.height = '500px';
-                            return;
-                        }
-                        
-                        // Handle maximizing
-                        if (!widget.classList.contains('widget-maximized')) {
-                            // Maximize the widget
-                            widget.classList.add('widget-maximized');
-                            widget.style.width = '100%';
-                            widget.style.height = '80%';
-                            widget.style.top = '10%';
-                            widget.style.left = '0';
-                            widget.style.right = '0';
-                            widget.style.bottom = '0';
-                            widget.style.margin = 'auto';
-                        } else {
-                            // Restore to previous state
-                            widget.classList.remove('widget-maximized');
-                            
-                            if (widget.classList.contains('widget-expanded-plus')) {
-                                widget.style.width = '700px';
-                            } else {
-                                widget.style.width = '320px';
-                            }
-                            
-                            widget.style.height = '500px';
-                            widget.style.top = 'auto';
-                            widget.style.left = 'auto';
-                            widget.style.right = '20px';
-                            widget.style.bottom = '20px';
-                            widget.style.margin = '0';
-                        }
-                    });
-                }
-                
-                // Also make the drag handle work
-                const dragHandle = widget.querySelector('.drag-handle');
-                if (dragHandle) {
-                    console.log('Drag handle found, adding drag functionality');
-                    let isDragging = false;
-                    let offsetX, offsetY;
-                    
-                    dragHandle.addEventListener('mousedown', function(e) {
-                        isDragging = true;
-                        offsetX = e.clientX - widget.getBoundingClientRect().left;
-                        offsetY = e.clientY - widget.getBoundingClientRect().top;
-                    });
-                    
-                    document.addEventListener('mousemove', function(e) {
-                        if (isDragging) {
-                            widget.style.left = (e.clientX - offsetX) + 'px';
-                            widget.style.top = (e.clientY - offsetY) + 'px';
-                            widget.style.right = 'auto';
-                            widget.style.bottom = 'auto';
-                        }
-                    });
-                    
-                    document.addEventListener('mouseup', function() {
-                        isDragging = false;
-                    });
-                    
-                    // Double-click on drag handle to toggle collapse
-                    dragHandle.addEventListener('dblclick', function() {
-                        console.log('Double-click on drag handle');
-                        if (widget.classList.contains('widget-collapsed')) {
-                            // Expand
-                            console.log('Expanding widget');
-                            widget.classList.remove('widget-collapsed');
-                            widget.classList.add('widget-expanded');
-                            widget.style.height = '500px';
-                            
-                            // Show content elements
-                            const widgetContent = widget.querySelector('.widget-content');
-                            if (widgetContent) widgetContent.style.display = 'block';
-                            
-                            const controlsBar = widget.querySelector('.controls-bar');
-                            if (controlsBar) controlsBar.style.display = 'flex';
-                            
-                            const chatInput = widget.querySelector('.chat-input-container');
-                            if (chatInput) chatInput.style.display = 'flex';
-                        } else {
-                            // Collapse
-                            console.log('Collapsing widget');
-                            widget.classList.add('widget-collapsed');
-                            widget.classList.remove('widget-expanded');
-                            widget.classList.remove('widget-expanded-plus');
-                            widget.style.height = '40px';
-                            
-                            // Hide content elements
-                            const widgetContent = widget.querySelector('.widget-content');
-                            if (widgetContent) widgetContent.style.display = 'none';
-                            
-                            const controlsBar = widget.querySelector('.controls-bar');
-                            if (controlsBar) controlsBar.style.display = 'none';
-                            
-                            const chatInput = widget.querySelector('.chat-input-container');
-                            if (chatInput) chatInput.style.display = 'none';
-                        }
-                    });
-                }
-                
-                // Initially hide the deal content pane
-                const dealContentPane = widget.querySelector('.deal-content-pane');
-                if (dealContentPane) dealContentPane.style.display = 'none';
-            }
-        });
-    </script>
+    <!-- Recovery script to handle page freezes -->
+    <script src="js/recovery.js"></script>
 </body>
 </html> 
