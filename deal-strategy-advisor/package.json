@@ -1,0 +1,28 @@
+{
+  "name": "deal-strategy-advisor",
+  "version": "1.0.0",
+  "description": "A sales workspace with integrated deal advisor",
+  "main": "js/main.js",
+  "type": "module",
+  "scripts": {
+    "start": "serve .",
+    "dev": "serve .",
+    "open": "node open-app.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "sales",
+    "crm",
+    "deal",
+    "advisor",
+    "ai"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "serve": "^14.2.1"
+  },
+  "devDependencies": {
+    "eslint": "^8.57.0"
+  }
+} 

@@ -1,0 +1,810 @@
+/* workspace.css - Styles for the workspace tabs and apps */
+
+/* Workspace tabs */
+.workspace-tabs {
+    display: flex;
+    height: 48px;
+    background-color: #1f1f1f;
+    align-items: center;
+    padding: 0 16px;
+}
+
+.tab {
+    display: flex;
+    align-items: center;
+    color: #fff;
+    padding: 0 16px;
+    height: 100%;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    opacity: 0.7;
+}
+
+.tab:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    opacity: 1;
+}
+
+.tab.active {
+    border-bottom: 2px solid #0078d4;
+    opacity: 1;
+}
+
+.tab img {
+    height: 20px;
+    width: 20px;
+    margin-right: 8px;
+}
+
+.tab span {
+    font-size: 14px;
+    font-weight: 500;
+}
+
+/* Workspace content */
+.workspace-content {
+    display: none;
+    flex: 1;
+    height: calc(100vh - 48px);
+    overflow: hidden;
+}
+
+.workspace-content.active {
+    display: flex;
+    flex-direction: column;
+    animation: fadeIn 0.3s;
+}
+
+/* HUBSPOT APP STYLES */
+#hubspot-content,
+#gmail-content,
+#calendar-content,
+#dealhub-content {
+    background-color: #f5f7fa;
+    display: none;
+    flex-direction: column;
+}
+
+#hubspot-content.active,
+#gmail-content.active,
+#calendar-content.active,
+#dealhub-content.active {
+    display: flex;
+}
+
+/* Hubspot navigation */
+.hubspot-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 50px;
+    background-color: #f5f7fa;
+    border-bottom: 1px solid #e1e4e8;
+    padding: 0 16px;
+}
+
+.nav-left {
+    display: flex;
+    align-items: center;
+}
+
+.hubspot-logo {
+    height: 24px;
+    margin-right: 16px;
+}
+
+.nav-menu {
+    display: flex;
+    gap: 16px;
+}
+
+.nav-menu a {
+    font-size: 14px;
+    color: #333;
+    text-decoration: none;
+    padding: 6px 0;
+    position: relative;
+}
+
+.nav-menu a.active {
+    color: #0078d4;
+    font-weight: 500;
+}
+
+.view-deals {
+    background-color: #0078d4;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.view-deals:hover {
+    background-color: #0067b8;
+}
+
+/* Pipeline header */
+.pipeline-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px;
+    border-bottom: 1px solid #e1e4e8;
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.view-controls {
+    display: flex;
+    border: 1px solid #d2d6da;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.view-btn {
+    background: white;
+    border: none;
+    padding: 6px 12px;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.view-btn:first-child {
+    border-right: 1px solid #d2d6da;
+}
+
+.view-btn:last-child {
+    border-left: none;
+}
+
+.view-btn.active {
+    background-color: #f5f7fa;
+    font-weight: 500;
+}
+
+.pipeline-select {
+    padding: 6px 12px;
+    border: 1px solid #d2d6da;
+    border-radius: 4px;
+    background-color: white;
+    font-size: 14px;
+}
+
+.create-btn {
+    background-color: #0078d4;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    font-size: 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    transition: background-color 0.2s;
+}
+
+.create-btn:hover {
+    background-color: #0067b8;
+}
+
+/* Pipeline board */
+.pipeline-board {
+    display: flex;
+    height: calc(100vh - 120px);
+    overflow-x: auto;
+    padding: 16px;
+    gap: 16px;
+}
+
+/* Pipeline stages */
+.stage {
+    min-width: 300px;
+    width: 300px;
+    background-color: #f0f2f5;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.stage-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    border-bottom: 1px solid #e1e4e8;
+    background-color: #fff;
+    border-radius: 8px 8px 0 0;
+}
+
+.stage-header h3 {
+    font-size: 16px;
+    font-weight: 500;
+    margin: 0;
+    color: #333;
+}
+
+.deal-count {
+    background-color: #f0f2f5;
+    border-radius: 12px;
+    padding: 2px 8px;
+    font-size: 12px;
+    color: #555;
+}
+
+.stage-deals {
+    padding: 12px;
+    overflow-y: auto;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+/* Deal cards */
+.deal-card {
+    background-color: white;
+    border-radius: 6px;
+    padding: 12px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    cursor: pointer;
+    transition: all 0.2s;
+    border-left: 3px solid transparent;
+}
+
+.deal-card:hover {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transform: translateY(-1px);
+}
+
+.deal-card.selected {
+    border-left-color: #0078d4;
+}
+
+.deal-card h4 {
+    font-size: 14px;
+    margin: 0 0 8px 0;
+    font-weight: 500;
+    color: #333;
+    line-height: 1.3;
+}
+
+.deal-info {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: #555;
+    margin-bottom: 8px;
+}
+
+.deal-status {
+    display: flex;
+    align-items: center;
+}
+
+.deal-status span {
+    font-size: 12px;
+    padding: 2px 6px;
+    border-radius: 10px;
+    color: white;
+}
+
+.deal-status span.new {
+    background-color: #0078d4;
+}
+
+.deal-status span.active {
+    background-color: #107c10;
+}
+
+.deal-status span.at-risk {
+    background-color: #d13438;
+}
+
+/* GMAIL APP STYLES */
+.email-interface {
+    display: flex;
+    height: 100%;
+}
+
+.email-sidebar {
+    width: 200px;
+    background-color: #f5f7fa;
+    border-right: 1px solid #e1e4e8;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.compose-btn button {
+    width: 100%;
+    background-color: #0078d4;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 16px;
+    font-weight: 500;
+}
+
+.email-folders {
+    display: flex;
+    flex-direction: column;
+}
+
+.folder {
+    padding: 8px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-bottom: 4px;
+    transition: background-color 0.2s;
+}
+
+.folder:hover {
+    background-color: #e4e6e9;
+}
+
+.folder.active {
+    background-color: #e6f0f9;
+    color: #0078d4;
+    font-weight: 500;
+}
+
+.email-list {
+    width: 350px;
+    border-right: 1px solid #e1e4e8;
+    display: flex;
+    flex-direction: column;
+    background-color: white;
+}
+
+.email-list-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    border-bottom: 1px solid #e1e4e8;
+}
+
+.email-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.email-controls button {
+    background: none;
+    border: none;
+    color: #555;
+    font-size: 13px;
+    cursor: pointer;
+    padding: 4px 8px;
+}
+
+.email-sort select {
+    font-size: 13px;
+    padding: 4px 8px;
+    border: 1px solid #d2d6da;
+    border-radius: 4px;
+    background-color: white;
+}
+
+.email-items {
+    flex: 1;
+    overflow-y: auto;
+}
+
+.email-item {
+    padding: 12px 16px;
+    border-bottom: 1px solid #e1e4e8;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.email-item:hover {
+    background-color: #f5f7fa;
+}
+
+.email-item.unread .email-sender,
+.email-item.unread .email-subject {
+    font-weight: 600;
+}
+
+.email-item.selected {
+    background-color: #e6f0f9;
+}
+
+.email-sender {
+    font-size: 14px;
+    margin-bottom: 4px;
+    color: #333;
+}
+
+.email-subject {
+    font-size: 14px;
+    margin-bottom: 4px;
+    color: #333;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.email-snippet {
+    font-size: 13px;
+    color: #666;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.email-date {
+    font-size: 12px;
+    color: #666;
+    text-align: right;
+}
+
+.email-preview {
+    flex: 1;
+    padding: 20px;
+    background-color: white;
+    overflow-y: auto;
+}
+
+.email-preview-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 16px;
+}
+
+.email-preview-header h2 {
+    font-size: 20px;
+    font-weight: 500;
+    margin: 0;
+}
+
+.email-preview-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.email-preview-actions button {
+    background-color: #f5f7fa;
+    color: #333;
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-size: 13px;
+}
+
+.email-preview-content {
+    line-height: 1.6;
+}
+
+.email-metadata {
+    margin-bottom: 16px;
+    border-bottom: 1px solid #e1e4e8;
+    padding-bottom: 16px;
+}
+
+.email-metadata p {
+    margin-bottom: 4px;
+    color: #666;
+}
+
+.email-body {
+    color: #333;
+}
+
+.email-body p {
+    margin-bottom: 12px;
+}
+
+/* CALENDAR APP STYLES */
+.calendar-interface {
+    display: flex;
+    height: 100%;
+}
+
+.calendar-sidebar {
+    width: 250px;
+    background-color: #f5f7fa;
+    border-right: 1px solid #e1e4e8;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.calendar-navigation {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.calendar-navigation h2 {
+    font-size: 18px;
+    font-weight: 500;
+    margin: 0;
+}
+
+.calendar-navigation button {
+    background: none;
+    border: none;
+    font-size: 18px;
+    cursor: pointer;
+    color: #555;
+    width: 30px;
+    height: 30px;
+}
+
+.calendar-filters {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.calendar-filters label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.quick-add {
+    margin-top: auto;
+}
+
+.quick-add button {
+    width: 100%;
+    background-color: #0078d4;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-weight: 500;
+}
+
+.quick-add button:hover {
+    background-color: #0067b8;
+}
+
+.calendar-main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background-color: white;
+    padding: 16px;
+}
+
+.calendar-header {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    text-align: center;
+    border-bottom: 1px solid #e1e4e8;
+    padding-bottom: 8px;
+    margin-bottom: 8px;
+}
+
+.calendar-header div {
+    font-weight: 500;
+    color: #555;
+}
+
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    grid-auto-rows: minmax(100px, 1fr);
+    flex: 1;
+    gap: 4px;
+}
+
+.calendar-day {
+    border: 1px solid #e1e4e8;
+    padding: 6px;
+    overflow: hidden;
+    cursor: pointer;
+}
+
+.calendar-day:hover {
+    background-color: #f5f7fa;
+}
+
+.calendar-day .date {
+    text-align: right;
+    font-size: 14px;
+    margin-bottom: 4px;
+    color: #333;
+}
+
+.calendar-day.today {
+    border-color: #0078d4;
+}
+
+.calendar-day.today .date {
+    color: #0078d4;
+    font-weight: 600;
+}
+
+.calendar-day.outside-month {
+    background-color: #f9f9f9;
+}
+
+.calendar-day.outside-month .date {
+    color: #999;
+}
+
+.calendar-event {
+    margin-bottom: 4px;
+    padding: 4px 6px;
+    border-radius: 3px;
+    font-size: 12px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: white;
+    cursor: pointer;
+}
+
+.calendar-event.deal-meeting {
+    background-color: #0078d4;
+}
+
+.calendar-event.internal-meeting {
+    background-color: #107c10;
+}
+
+.calendar-event.customer-call {
+    background-color: #5c2d91;
+}
+
+.event-preview {
+    width: 300px;
+    border-left: 1px solid #e1e4e8;
+    padding: 16px;
+    background-color: #f5f7fa;
+    display: none;
+    overflow-y: auto;
+}
+
+.event-preview.active {
+    display: block;
+}
+
+.event-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.event-actions button {
+    background-color: #f5f7fa;
+    border: 1px solid #d2d6da;
+    color: #333;
+    padding: 6px 12px;
+    border-radius: 4px;
+}
+
+.event-actions button:hover {
+    background-color: #e4e6e9;
+}
+
+/* DEALHUB APP STYLES */
+#dealhub-content {
+    background-color: white;
+}
+
+#dealhub-content.active {
+    display: flex;
+}
+
+#dealhub-content .dealhub-interface {
+    display: flex;
+    height: 100%;
+}
+
+.proposal-items {
+    width: 350px;
+    border-right: 1px solid #e1e4e8;
+    overflow-y: auto;
+    background-color: #f5f7fa;
+}
+
+.proposal-preview {
+    flex: 1;
+    padding: 24px;
+    overflow-y: auto;
+}
+
+.preview-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #e1e4e8;
+}
+
+.preview-header h2 {
+    font-size: 24px;
+    font-weight: 500;
+    margin: 0;
+}
+
+.preview-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.preview-actions button {
+    padding: 8px 16px;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.preview-actions button:hover {
+    background-color: #e4e6e9;
+}
+
+.proposal-item {
+    padding: 16px;
+    border-bottom: 1px solid #e1e4e8;
+    background-color: white;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.proposal-item:hover {
+    background-color: #f5f7fa;
+}
+
+.proposal-item.selected {
+    background-color: #e6f0f9;
+    border-left: 3px solid #0078d4;
+}
+
+.proposal-header {
+    display: flex;
+    justify-content: space-between;
+}
+
+.proposal-header h3 {
+    font-size: 16px;
+    font-weight: 500;
+    margin: 0 0 8px 0;
+}
+
+.proposal-status {
+    font-size: 12px;
+    padding: 2px 8px;
+    border-radius: 12px;
+    background-color: #f0f2f5;
+    color: #333;
+    height: fit-content;
+}
+
+.proposal-details {
+    margin-bottom: 8px;
+    font-size: 13px;
+    color: #555;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.proposal-amount {
+    font-weight: 500;
+    color: #333;
+    margin-bottom: 4px;
+}
+
+.proposal-date {
+    font-size: 12px;
+    color: #666;
+} 

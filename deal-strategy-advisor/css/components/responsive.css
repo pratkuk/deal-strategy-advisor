@@ -1,0 +1,321 @@
+/* responsive.css - Responsive layout adjustments */
+
+@media (max-width: 1200px) {
+    /* Pipeline stages */
+    .stage {
+        min-width: 280px;
+        width: 280px;
+    }
+    
+    /* Email layout */
+    .email-sidebar {
+        width: 180px;
+    }
+    
+    .email-list {
+        width: 320px;
+    }
+    
+    /* Calendar layout */
+    .calendar-sidebar {
+        width: 220px;
+    }
+    
+    /* Proposal items */
+    .proposal-items {
+        width: 320px;
+    }
+}
+
+@media (max-width: 992px) {
+    /* Pipeline stages */
+    .stage {
+        min-width: 260px;
+        width: 260px;
+    }
+    
+    /* Email layout */
+    .email-sidebar {
+        width: 160px;
+    }
+    
+    .email-list {
+        width: 280px;
+    }
+    
+    /* Calendar layout */
+    .calendar-sidebar {
+        width: 200px;
+    }
+    
+    /* Proposal items */
+    .proposal-items {
+        width: 280px;
+    }
+    
+    /* Events display */
+    .calendar-event {
+        font-size: 11px;
+        padding: 3px 5px;
+    }
+    
+    /* Calendar day cells */
+    .calendar-day .date {
+        font-size: 12px;
+    }
+}
+
+@media (max-width: 768px) {
+    /* General workspace tabs */
+    .workspace-tabs {
+        height: 40px;
+    }
+    
+    .tab img {
+        height: 16px;
+        width: 16px;
+    }
+    
+    .tab span {
+        font-size: 12px;
+    }
+    
+    /* Pipeline stages */
+    .pipeline-board {
+        padding: 8px;
+        gap: 8px;
+    }
+    
+    .stage {
+        min-width: 240px;
+        width: 240px;
+    }
+    
+    /* Email layout - stack vertically on smaller screens */
+    .email-interface {
+        flex-direction: column;
+        height: calc(100vh - 90px);
+    }
+    
+    .email-sidebar {
+        width: 100%;
+        border-right: none;
+        border-bottom: 1px solid #e1e4e8;
+        padding: 12px;
+        flex-direction: row;
+        justify-content: space-between;
+        flex-wrap: wrap;
+    }
+    
+    .compose-btn {
+        width: 100%;
+        margin-bottom: 8px;
+    }
+    
+    .email-folders {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+    
+    .folder {
+        margin-bottom: 0;
+    }
+    
+    .email-list {
+        width: 100%;
+        border-right: none;
+        border-bottom: 1px solid #e1e4e8;
+        max-height: 40vh;
+    }
+    
+    .email-preview {
+        width: 100%;
+    }
+    
+    /* Calendar layout - stack vertically on smaller screens */
+    .calendar-interface {
+        flex-direction: column;
+        height: calc(100vh - 90px);
+    }
+    
+    .calendar-sidebar {
+        width: 100%;
+        border-right: none;
+        border-bottom: 1px solid #e1e4e8;
+        padding: 12px;
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        gap: 12px;
+    }
+    
+    .calendar-navigation {
+        width: 100%;
+    }
+    
+    .calendar-filters {
+        flex-direction: row;
+        flex-wrap: wrap;
+    }
+    
+    .quick-add {
+        margin-top: 0;
+        width: 100%;
+    }
+    
+    .event-preview {
+        width: 100%;
+        border-left: none;
+        border-top: 1px solid #e1e4e8;
+    }
+    
+    /* Dealhub layout - stack vertically on smaller screens */
+    #dealhub-content .dealhub-interface {
+        flex-direction: column;
+        height: calc(100vh - 90px);
+    }
+    
+    .proposal-items {
+        width: 100%;
+        border-right: none;
+        border-bottom: 1px solid #e1e4e8;
+        max-height: 40vh;
+    }
+    
+    /* Deal cards */
+    .deal-card h4 {
+        font-size: 13px;
+    }
+    
+    /* Widget layout */
+    #deal-chat-widget {
+        width: 90%;
+        bottom: 10px;
+        right: 5%;
+        height: 500px;
+    }
+    
+    .widget-expanded {
+        width: 95%;
+        height: 80vh;
+    }
+}
+
+@media (max-width: 576px) {
+    /* Main tabs */
+    .tab {
+        padding: 0 8px;
+    }
+    
+    .tab span {
+        display: none;
+    }
+    
+    .tab img {
+        margin-right: 0;
+    }
+    
+    /* Pipeline header */
+    .pipeline-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+    
+    .header-left {
+        width: 100%;
+    }
+    
+    .header-right {
+        width: 100%;
+    }
+    
+    /* Email controls */
+    .email-list-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+    
+    /* Email preview */
+    .email-preview-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+    
+    /* Widget */
+    #deal-chat-widget {
+        width: 100%;
+        right: 0;
+        bottom: 0;
+        border-radius: 0;
+    }
+    
+    .widget-expanded {
+        width: 100%;
+        height: 100vh;
+    }
+    
+    /* Deal context bar */
+    .deal-context-bar {
+        padding: 8px 12px;
+    }
+    
+    .active-deal-state {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+    
+    .deal-actions {
+        align-self: flex-end;
+    }
+    
+    /* Tab buttons */
+    .tab-btn {
+        padding: 8px 4px;
+        font-size: 13px;
+    }
+    
+    /* Chat interface */
+    .chat-input-container {
+        padding: 8px;
+    }
+    
+    /* Composer section */
+    .composer-section {
+        padding: 12px;
+    }
+    
+    /* Tasks section */
+    .coaching-section {
+        padding: 12px;
+    }
+    
+    .insight-card {
+        padding: 12px;
+    }
+    
+    /* Task items */
+    .task-item {
+        padding: 10px;
+    }
+    
+    .task-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+    
+    .task-meta {
+        width: 100%;
+    }
+    
+    /* Context menu */
+    .context-menu {
+        width: 280px;
+    }
+} 

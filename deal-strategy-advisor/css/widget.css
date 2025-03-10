@@ -1,0 +1,1959 @@
+/* widget.css - Styles for the widget and its components */
+
+/* Widget container */
+#deal-chat-widget {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 320px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    font-family: 'Inter', sans-serif;
+    z-index: 1000;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    display: block;
+    max-height: 80vh;
+}
+
+/* Widget header */
+.widget-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #4285f4;
+    color: white;
+    padding: 8px 12px;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+    cursor: move;
+    height: 40px;
+}
+
+.drag-handle {
+    display: flex;
+    align-items: center;
+    cursor: move;
+}
+
+.drag-icon {
+    font-size: 16px;
+    margin-right: 8px;
+    transform: rotate(90deg);
+}
+
+.header-title {
+    font-weight: 500;
+    font-size: 16px;
+}
+
+.widget-controls {
+    display: flex;
+    gap: 8px;
+}
+
+.control-btn {
+    background: transparent;
+    border: none;
+    color: white;
+    font-size: 16px;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border-radius: 4px;
+    margin-left: 4px;
+    padding: 0;
+}
+
+.control-btn:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Style the controls bar that contains both deal context and mode selector */
+.controls-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #f9f9fa;
+    border-radius: 4px;
+    margin-bottom: 8px;
+    padding: 6px;
+}
+
+/* Update the deal context bar to be part of the controls bar */
+.deal-context-bar {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    background-color: transparent;
+    border: none;
+    margin: 0;
+    padding: 0;
+    width: auto;
+    flex: 1;
+}
+
+/* Update the widget mode selector to be part of the controls bar */
+.widget-mode-selector {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    background-color: transparent;
+    border: none;
+    margin: 0;
+    padding: 0;
+    width: auto;
+}
+
+/* Ensure the widget is properly collapsed/expanded */
+.widget-collapsed .controls-bar {
+    display: none;
+}
+
+.widget-expanded .controls-bar {
+    display: flex;
+}
+
+/* Make mode selector button more compact */
+.mode-selector-btn {
+    background: #f0f6ff;
+    border: 1px solid #4285f4;
+    border-radius: 4px;
+    padding: 4px 8px;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    font-weight: 500;
+    color: #333;
+    font-size: 12px;
+    max-width: 80px;
+    justify-content: center;
+}
+
+/* Make select deal button more compact */
+.select-deal-btn {
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 4px 8px;
+    font-size: 12px;
+    color: #333;
+    cursor: pointer;
+    font-weight: normal;
+    display: flex;
+    align-items: center;
+    width: auto;
+    min-width: 120px;
+    max-width: 160px;
+    justify-content: space-between;
+}
+
+.no-deal-state, 
+.active-deal-state {
+    display: none;
+}
+
+.no-deal-state.active, 
+.active-deal-state.active {
+    display: flex;
+}
+
+.no-deal-label {
+    color: #555;
+    font-size: 14px;
+    margin-right: 8px;
+    display: none;
+}
+
+.select-deal-btn, 
+.switch-deal-btn, 
+.clear-deal-btn {
+    background-color: #f5f7fa;
+    border: 1px solid #d2d6da;
+    color: #333;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.select-deal-btn:hover, 
+.switch-deal-btn:hover, 
+.clear-deal-btn:hover {
+    background-color: #e4e6e9;
+}
+
+.deal-info {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.active-deal-name {
+    font-weight: 500;
+    font-size: 14px;
+    color: #333;
+}
+
+.deal-stage-pill {
+    background-color: #f0f2f5;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 12px;
+    color: #333;
+}
+
+.deal-stage-pill.new {
+    background-color: #0078d4;
+    color: white;
+}
+
+.deal-stage-pill.active {
+    background-color: #107c10;
+    color: white;
+}
+
+.deal-stage-pill.at-risk {
+    background-color: #d13438;
+    color: white;
+}
+
+.deal-actions {
+    display: flex;
+    gap: 8px;
+}
+
+/* Widget content */
+.widget-content {
+    height: calc(100% - 110px); /* Subtract header, context bar and input height */
+    overflow: hidden;
+    background-color: #fff;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Widget tabs */
+.widget-tabs {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+}
+
+/* Update Widget Mode Selector - Now positioned below chat input */
+.widget-mode-selector {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    padding: 0 10px;
+    background-color: transparent;
+    border-bottom: none;
+    width: 100%;
+    margin-top: 0;
+}
+
+.tab-nav {
+    display: flex;
+    border-bottom: 1px solid #e1e4e8;
+    background-color: #f5f7fa;
+}
+
+.tab-btn {
+    flex: 1;
+    padding: 10px;
+    text-align: center;
+    background: none;
+    border: none;
+    font-size: 14px;
+    color: #555;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    border-bottom: 2px solid transparent;
+}
+
+.tab-btn:hover {
+    background-color: #e4e6e9;
+}
+
+.tab-btn.active {
+    color: #0078d4;
+    font-weight: 500;
+    border-bottom-color: #0078d4;
+    background-color: white;
+}
+
+.tab-content {
+    height: calc(100% - 40px);
+    overflow: hidden;
+    position: relative;
+    display: none;
+    background-color: #fff;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+/* Update chat section to accommodate new layout */
+.chat-section {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    position: relative;
+    overflow: hidden;
+    gap: 8px;
+    padding-bottom: 8px;
+}
+
+.chat-messages {
+    flex: 1 1 auto;
+    min-height: 200px; /* Ensure minimum height */
+    overflow-y: auto;
+    padding: 12px;
+    background-color: #f9f9f9;
+    border-radius: 4px;
+    margin-bottom: 8px;
+}
+
+.message {
+    max-width: 80%;
+    padding: 12px;
+    border-radius: 8px;
+    position: relative;
+    word-wrap: break-word;
+}
+
+.message.system {
+    align-self: center;
+    background-color: #f0f2f5;
+    color: #333;
+    max-width: 90%;
+    text-align: center;
+    margin-bottom: 8px;
+}
+
+.message.user {
+    align-self: flex-end;
+    background-color: #e6f0f9;
+    color: #333;
+}
+
+.message.assistant {
+    align-self: flex-start;
+    background-color: #f0f2f5;
+    color: #333;
+}
+
+.welcome-message {
+    display: none;
+}
+
+.welcome-message.active {
+    display: block;
+}
+
+/* Chat input container adjustments for the new layout */
+.chat-input-container {
+    flex: 0 0 auto; /* Don't allow to grow or shrink */
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    padding: 8px;
+    background-color: #ffffff;
+    border: 1px solid #e0e4e8;
+    border-radius: 4px;
+    position: relative;
+    width: 100%;
+    z-index: 2;
+}
+
+.chat-input {
+    flex: 1;
+    border: 1px solid #ddd;
+    border-radius: 20px;
+    padding: 8px 12px;
+    font-size: 14px;
+    outline: none;
+    height: 36px;
+    background-color: #f5f7fa;
+}
+
+/* File upload button for chat */
+.file-upload-btn-chat {
+    background: transparent;
+    border: none;
+    color: #667085;
+    padding: 4px;
+    margin-left: 6px;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.file-upload-btn-chat:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+.file-upload-btn-chat svg {
+    width: 20px;
+    height: 20px;
+    fill: currentColor;
+}
+
+/* Send button */
+.send-btn {
+    background: #1976d2;
+    border: none;
+    color: white;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    font-size: 18px;
+    cursor: pointer;
+    margin-left: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Show context menu button */
+#showContextMenuBtn {
+    background-color: #f5f7fa;
+    color: #555;
+    border: 1px solid #d2d6da;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 16px;
+    padding: 0;
+}
+
+#showContextMenuBtn:hover {
+    background-color: #e4e6e9;
+}
+
+/* ASK TAB (formerly Composer) */
+.composer-section {
+    padding: 16px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.null-state-message {
+    text-align: center;
+    padding: 24px 16px;
+    background-color: #f8f9fc;
+    border-radius: 8px;
+    margin-bottom: 16px;
+    display: none;
+}
+
+.null-state-message.active {
+    display: block;
+}
+
+.null-state-message h3 {
+    margin: 0 0 8px 0;
+    font-size: 18px;
+    color: #333;
+}
+
+.null-state-message p {
+    margin: 0;
+    color: #667085;
+}
+
+.composer-notes-container {
+    position: relative;
+    margin-bottom: 16px;
+}
+
+.composer-notes-container textarea {
+    width: 100%;
+    min-height: 120px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 12px;
+    font-size: 14px;
+    resize: vertical;
+    outline: none;
+    box-sizing: border-box;
+}
+
+.file-drop-area {
+    border: 2px dashed #ddd;
+    border-radius: 8px;
+    padding: 20px;
+    text-align: center;
+    margin-bottom: 16px;
+    cursor: pointer;
+    transition: border-color 0.3s;
+}
+
+.file-drop-area:hover {
+    border-color: #1976d2;
+}
+
+.drop-area-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.drop-area-content svg {
+    color: #667085;
+    margin-bottom: 12px;
+}
+
+.drop-area-content p {
+    margin: 0;
+    color: #667085;
+}
+
+.browse-text {
+    color: #1976d2;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.context-actions {
+    display: flex;
+    justify-content: center;
+}
+
+.analyze-btn {
+    background-color: #1976d2;
+    color: white;
+    border: none;
+    border-radius: 20px;
+    padding: 8px 20px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.analyze-btn:hover {
+    background-color: #1565c0;
+}
+
+/* TASKS TAB (formerly Coaching) */
+.coaching-section {
+    padding: 16px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.task-section {
+    margin-top: 24px;
+}
+
+.task-section h3 {
+    margin: 0 0 12px 0;
+    font-size: 16px;
+    color: #333;
+}
+
+.task-section textarea {
+    width: 100%;
+    min-height: 120px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 12px;
+    font-size: 14px;
+    resize: vertical;
+    outline: none;
+    margin-bottom: 12px;
+    box-sizing: border-box;
+}
+
+.save-notes-btn {
+    background-color: #1976d2;
+    color: white;
+    border: none;
+    border-radius: 20px;
+    padding: 8px 20px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.save-notes-btn:hover {
+    background-color: #1565c0;
+}
+
+/* CONTEXT MENU */
+.modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.3);
+    z-index: 1050;
+    display: none;
+    animation: fadeIn 0.2s;
+}
+
+.modal-backdrop.visible {
+    display: block;
+}
+
+.context-menu {
+    position: absolute;
+    width: 300px;
+    max-height: 400px;
+    background-color: white;
+    border-radius: 6px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+    z-index: 1060;
+    display: none;
+    flex-direction: column;
+    animation: fadeIn 0.2s, slideUp 0.2s;
+    overflow: hidden;
+}
+
+.context-menu.visible {
+    display: flex;
+}
+
+.context-menu-header-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    border-bottom: 1px solid #e1e4e8;
+    background-color: #f5f7fa;
+}
+
+.context-menu-title {
+    font-weight: 500;
+    color: #333;
+}
+
+.close-context-menu {
+    background: none;
+    border: none;
+    color: #666;
+    font-size: 18px;
+    cursor: pointer;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+}
+
+.close-context-menu:hover {
+    background-color: #e4e6e9;
+}
+
+.context-menu-content {
+    padding: 12px;
+    overflow-y: auto;
+}
+
+.context-menu-section {
+    margin-bottom: 16px;
+}
+
+.context-menu-section:last-child {
+    margin-bottom: 0;
+}
+
+.context-menu-header {
+    font-weight: 500;
+    margin-bottom: 8px;
+    color: #333;
+    font-size: 14px;
+}
+
+.context-menu-items {
+    display: flex;
+    flex-direction: column;
+}
+
+.context-menu-item {
+    padding: 8px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.context-menu-item:hover {
+    background-color: #f5f7fa;
+}
+
+.menu-item-label {
+    font-weight: 500;
+    font-size: 14px;
+    color: #333;
+}
+
+.menu-item-description {
+    font-size: 12px;
+    color: #666;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* General context menu button */
+.context-menu-btn {
+    background-color: #f5f7fa;
+    color: #555;
+    border: 1px solid #d2d6da;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 16px;
+    padding: 0;
+}
+
+.context-menu-btn:hover {
+    background-color: #e4e6e9;
+}
+
+/* Widget state classes */
+.widget-collapsed {
+    width: 320px;
+    height: 40px !important; /* Force height override */
+    min-height: 40px !important;
+    max-height: 40px !important;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.widget-collapsed .widget-content,
+.widget-collapsed .deal-context-bar,
+.widget-collapsed .widget-mode-selector {
+    display: none !important;
+}
+
+.widget-expanded {
+    width: 320px;
+    height: 500px;
+    transition: all 0.3s ease;
+}
+
+.widget-expanded .widget-content {
+    display: block;
+    height: calc(100% - 70px); /* 40px header + 30px context bar */
+    overflow-y: auto;
+}
+
+/* Mobile responsiveness for the new layout */
+@media (max-width: 768px) {
+    #deal-chat-widget {
+        width: 100%;
+        height: 100%;
+        bottom: 0;
+        right: 0;
+        border-radius: 0;
+    }
+    
+    .widget-expanded {
+        width: 100% !important;
+        height: 100% !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        bottom: 0 !important;
+    }
+    
+    .deal-context-bar,
+    .widget-mode-selector {
+        padding: 4px 8px;
+    }
+    
+    .no-deal-label {
+        font-size: 12px;
+    }
+    
+    .select-deal-btn {
+        font-size: 12px;
+        padding: 4px 8px;
+    }
+}
+
+/* Deal highlight in various listings */
+.email-item.deal-highlight,
+.proposal-item.deal-highlight,
+.calendar-event.deal-highlight {
+    box-shadow: 0 0 0 2px #0078d4;
+}
+
+/* Improved dropdown styles */
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.dropdown-content {
+    position: absolute;
+    bottom: 100%;
+    left: 0;
+    background-color: #fff;
+    min-width: 180px;
+    box-shadow: 0px -2px 10px rgba(0,0,0,0.15);
+    border-radius: 4px;
+    border: 1px solid #e1e4e8;
+    margin-bottom: 5px;
+    z-index: 9999;
+    display: none;
+    overflow: hidden;
+}
+
+.dropdown-content.show {
+    display: block !important;
+}
+
+.dropdown-content a {
+    color: #333;
+    padding: 8px 12px;
+    text-decoration: none;
+    display: block;
+    font-size: 14px;
+}
+
+.dropdown-content a:hover {
+    background-color: #f9f9f9;
+}
+
+.dropdown:hover .dropdown-content {
+    display: none;
+}
+
+/* Ensure inputs and buttons are properly styled */
+button {
+    cursor: pointer;
+}
+
+input, textarea {
+    font-family: 'Inter', sans-serif;
+}
+
+/* Widget mode selector */
+.mode-selector-btn {
+    background: #f0f6ff;
+    border: 1px solid #4285f4;
+    border-radius: 4px;
+    padding: 5px 10px;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    font-weight: 500;
+    color: #333;
+    font-size: 13px;
+    width: 84px;
+    justify-content: center;
+}
+
+.current-mode {
+    margin-right: 6px;
+}
+
+.dropdown-arrow {
+    display: none;
+}
+
+.mode-action-buttons {
+    display: flex;
+}
+
+.mode-action-btn {
+    background-color: transparent;
+    border: none;
+    width: 24px;
+    height: 24px;
+    margin-left: 4px;
+    color: #4285f4;
+}
+
+.mode-action-btn:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+/* Repositioned context menu button */
+.context-menu-left-btn {
+    background: transparent;
+    border: none;
+    color: #666;
+    font-size: 16px;
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 4px;
+    border-radius: 4px;
+}
+
+.context-menu-left-btn:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+/* Ensure the deal context bar looks like dropdown */
+.select-deal-btn {
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 5px 12px;
+    font-size: 14px;
+    color: #333;
+    cursor: pointer;
+    font-weight: normal;
+    display: flex;
+    align-items: center;
+    width: 180px;
+    justify-content: space-between;
+}
+
+.select-deal-btn::after {
+    content: "▼";
+    font-size: 10px;
+    margin-left: 8px;
+    color: #666;
+}
+
+.select-deal-btn:hover {
+    background-color: #f5f5f5;
+    border-color: #aaa;
+}
+
+/* Top positioned chat input */
+.chat-input-container.top-input {
+    position: relative;
+    bottom: auto;
+    left: auto;
+    right: auto;
+    border-top: none;
+    border-bottom: 1px solid #e1e4e8;
+    background-color: #f5f7fa;
+    z-index: 10;
+    padding: 10px 12px;
+    display: flex;
+    align-items: center;
+}
+
+.chat-input-container.top-input .chat-input {
+    border-radius: 20px;
+    background-color: white;
+    border: 1px solid #d1d5db;
+    padding: 8px 12px 8px 12px;
+    height: 36px;
+    font-size: 14px;
+}
+
+.chat-input-container.top-input .context-menu-left-btn {
+    color: #667085;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    background-color: white;
+    border: 1px solid #d1d5db;
+    border-radius: 50%;
+    margin-right: 8px;
+}
+
+.chat-input-container.top-input .send-btn {
+    color: white;
+    background-color: #1976d2;
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 8px;
+    border: none;
+}
+
+/* Adjust the layout for the new positioning */
+.widget-content {
+    height: calc(100% - 110px); /* Subtract header, context bar and input height */
+}
+
+.chat-section {
+    padding-bottom: 0; /* Remove padding as input is now at the top */
+}
+
+.chat-input-placeholder {
+    display: none; /* Hide the placeholder div */
+}
+
+/* Adjust deal context bar to have top border */
+.deal-context-bar {
+    border-top: 1px solid #e0e0e0;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+/* Adjust the collapsed widget to hide the input */
+.widget-collapsed .chat-input-container.top-input {
+    display: none !important;
+}
+
+/* Make dropdowns in the widget consistent */
+.widget-mode-selector .dropdown:hover .dropdown-content,
+.deal-context-bar .dropdown:hover .dropdown-content {
+    display: none;
+}
+
+/* Make the dropdown content more consistent */
+.dropdown-content {
+    border-radius: 4px;
+    overflow: hidden;
+    box-shadow: 0px -2px 5px rgba(0,0,0,0.1);
+}
+
+.dropdown-content a {
+    color: #333;
+    padding: 10px 12px;
+    text-decoration: none;
+    display: block;
+    font-size: 14px;
+    border-bottom: 1px solid #eee;
+}
+
+.dropdown-content a:last-child {
+    border-bottom: none;
+}
+
+.dropdown-content a:hover {
+    background-color: #f1f3f4;
+}
+
+/* Clean up the active deal state styling */
+.active-deal-state {
+    display: none;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.active-deal-state.active {
+    display: flex;
+}
+
+/* Fix dropdown positioning and interaction */
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+/* Fix select deal button styling */
+.select-deal-btn {
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 5px 12px;
+    font-size: 14px;
+    color: #333;
+    cursor: pointer;
+    font-weight: normal;
+    display: flex;
+    align-items: center;
+    width: 180px;
+    justify-content: space-between;
+}
+
+/* Fix agent button style to match screenshot */
+.mode-selector-btn {
+    background: #f0f6ff;
+    border: 1px solid #4285f4;
+    border-radius: 4px;
+    padding: 5px 10px;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    font-weight: 500;
+    color: #333;
+    font-size: 13px;
+    width: 84px;
+    justify-content: center;
+}
+
+/* Fix spacing between chat input and other elements */
+.chat-section > * {
+    margin-bottom: 8px;
+}
+
+.chat-section > *:last-child {
+    margin-bottom: 0;
+}
+
+/* Fix the chat messages container to take up the available space */
+.chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 12px;
+    margin-bottom: 0;
+    background-color: #f9f9f9;
+    border-radius: 4px;
+    min-height: 120px;
+}
+
+/* Make sure all sections have consistent styling */
+.composer-section, 
+.coaching-section, 
+.chat-section {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding: 15px;
+    gap: 15px;
+    background-color: #fff;
+    overflow-y: auto;
+}
+
+/* Standardize the null state message across all tabs */
+.null-state-message {
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    padding: 20px;
+    text-align: center;
+    margin-bottom: 15px;
+    display: none;
+}
+
+.null-state-message.active {
+    display: block;
+}
+
+.null-state-message h3 {
+    font-size: 18px;
+    font-weight: 500;
+    color: #333;
+    margin-bottom: 8px;
+}
+
+.null-state-message p {
+    font-size: 14px;
+    color: #666;
+    line-height: 1.4;
+}
+
+/* Standardize input containers across tabs */
+.composer-notes-container, 
+.task-section {
+    margin-bottom: 15px;
+    width: 100%;
+}
+
+/* Standardize text areas across all tabs */
+textarea {
+    width: 100%;
+    min-height: 120px;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    resize: vertical;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+    color: #333;
+    background-color: #fff;
+}
+
+textarea:focus {
+    outline: none;
+    border-color: #4285f4;
+    box-shadow: 0 0 0 2px rgba(66, 133, 244, 0.2);
+}
+
+/* Standardize file drop area to match overall design */
+.file-drop-area {
+    border: 2px dashed #ddd;
+    border-radius: 8px;
+    padding: 20px;
+    text-align: center;
+    margin-bottom: 15px;
+    background-color: #fff;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.file-drop-area:hover {
+    border-color: #4285f4;
+    background-color: rgba(66, 133, 244, 0.05);
+}
+
+.drop-area-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.drop-area-content svg {
+    width: 48px;
+    height: 48px;
+    color: #4285f4;
+    margin-bottom: 10px;
+}
+
+.drop-area-content p {
+    font-size: 14px;
+    color: #555;
+    margin: 0;
+}
+
+.browse-text {
+    color: #4285f4;
+    font-weight: 500;
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+/* Standardize button styling across tabs */
+.analyze-btn, 
+.save-notes-btn {
+    background-color: #4285f4;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 8px 16px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    margin-top: 5px;
+}
+
+.analyze-btn:hover, 
+.save-notes-btn:hover {
+    background-color: #3367d6;
+}
+
+/* Add CSS to handle hidden tabs but maintain functionality */
+.tab-content.composer-tab,
+.tab-content.coaching-tab {
+    display: none !important;
+}
+
+/* Make sure the chat tab can't be hidden if selected */
+.tab-content.chat-tab.active {
+    display: block !important;
+}
+
+/* Add new class for showing dropdown content when clicked */
+.dropdown-content.show {
+    display: block;
+}
+
+/* Specifically for widget mode selector */
+.widget-mode-selector .dropdown:hover .dropdown-content {
+    display: none;
+}
+
+.widget-mode-selector .dropdown-content.show,
+.deal-context-bar .dropdown-content.show {
+    display: block;
+}
+
+/* Fix pointer events so clicks register properly */
+.select-deal-btn,
+.mode-selector-btn {
+    cursor: pointer;
+    pointer-events: auto;
+    z-index: 1;
+}
+
+/* Ensure dropdown is positioned properly */
+.dropdown .dropdown-content {
+    left: 0;
+    min-width: 100%;
+}
+
+/* Expanded-Plus Widget State */
+.widget-expanded-plus {
+    width: 700px !important;
+    height: 500px !important;
+}
+
+/* Two-pane layout */
+.panes-container {
+    display: flex;
+    height: 100%;
+    width: 100%;
+}
+
+.chat-pane {
+    flex: 0 0 320px;
+    min-width: 280px;
+    border-right: 1px solid #e0e0e0;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.deal-content-pane {
+    flex: 1;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    background-color: #f5f7f9;
+}
+
+/* Deal content header */
+.deal-content-header {
+    padding: 10px 15px;
+    border-bottom: 1px solid #e0e0e0;
+    background-color: #f8f9fa;
+}
+
+.deal-content-header h3 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 500;
+    color: #333;
+}
+
+/* Deal content tabs */
+.deal-content-tabs {
+    display: flex;
+    border-bottom: 1px solid #e0e0e0;
+    background-color: #f8f9fa;
+}
+
+.deal-tab-btn {
+    padding: 8px 15px;
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    cursor: pointer;
+    font-size: 14px;
+    color: #666;
+}
+
+.deal-tab-btn:hover {
+    background-color: rgba(0, 0, 0, 0.03);
+    color: #333;
+}
+
+.deal-tab-btn.active {
+    color: #1a73e8;
+    border-bottom: 2px solid #1a73e8;
+    font-weight: 500;
+}
+
+/* Deal content body */
+.deal-content-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0;
+}
+
+.deal-tab-content {
+    display: none;
+    padding: 15px;
+    height: 100%;
+}
+
+.deal-tab-content.active {
+    display: block;
+}
+
+/* No deal selected message */
+.no-deal-selected {
+    display: none;
+    text-align: center;
+    padding: 40px 20px;
+    color: #666;
+}
+
+.no-deal-selected.active {
+    display: block;
+}
+
+.no-deal-selected p {
+    font-size: 15px;
+    margin: 0;
+}
+
+/* Deal overview section */
+.deal-section {
+    margin-bottom: 20px;
+    padding: 12px;
+    background-color: white;
+    border-radius: 6px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.deal-section h4 {
+    margin: 0 0 10px 0;
+    font-size: 14px;
+    color: #333;
+    font-weight: 500;
+}
+
+.deal-info-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-gap: 10px;
+}
+
+.info-item {
+    display: flex;
+    flex-direction: column;
+}
+
+.info-label {
+    font-size: 12px;
+    color: #666;
+    margin-bottom: 3px;
+}
+
+.info-value {
+    font-size: 14px;
+    color: #333;
+}
+
+/* Contacts section */
+.contacts-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.contact-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.contact-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background-color: #1a73e8;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 500;
+}
+
+.contact-details {
+    flex: 1;
+}
+
+.contact-name {
+    font-size: 14px;
+    font-weight: 500;
+    color: #333;
+}
+
+.contact-title, .contact-email {
+    font-size: 12px;
+    color: #666;
+}
+
+.contact-action {
+    background: none;
+    border: none;
+    color: #1a73e8;
+    cursor: pointer;
+    padding: 5px;
+    border-radius: 50%;
+}
+
+.contact-action:hover {
+    background-color: rgba(26, 115, 232, 0.1);
+}
+
+/* Notes section */
+.deal-notes {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.note-item {
+    padding: 8px 10px;
+    background-color: #f5f5f5;
+    border-radius: 4px;
+    border-left: 3px solid #1a73e8;
+}
+
+.note-text {
+    font-size: 14px;
+    color: #333;
+    margin-bottom: 5px;
+}
+
+.note-date {
+    font-size: 12px;
+    color: #666;
+}
+
+.add-note-btn {
+    border: 1px dashed #ccc;
+    background: none;
+    color: #666;
+    padding: 8px;
+    text-align: center;
+    cursor: pointer;
+    border-radius: 4px;
+    margin-top: 5px;
+    font-size: 14px;
+}
+
+.add-note-btn:hover {
+    background-color: rgba(0, 0, 0, 0.03);
+    color: #333;
+}
+
+/* Files section */
+.files-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.upload-file-btn {
+    background-color: #1a73e8;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 5px 10px;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+.upload-file-btn:hover {
+    background-color: #1669d3;
+}
+
+.files-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.file-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px;
+    background-color: white;
+    border-radius: 4px;
+    border: 1px solid #eee;
+}
+
+.file-icon {
+    font-size: 20px;
+}
+
+.file-details {
+    flex: 1;
+}
+
+.file-name {
+    font-size: 14px;
+    color: #333;
+    font-weight: 500;
+}
+
+.file-info {
+    font-size: 12px;
+    color: #666;
+}
+
+.file-download {
+    background: none;
+    border: none;
+    color: #1a73e8;
+    cursor: pointer;
+    padding: 5px;
+    border-radius: 4px;
+}
+
+.file-download:hover {
+    background-color: rgba(26, 115, 232, 0.1);
+}
+
+/* History section */
+.timeline-container {
+    padding-left: 15px;
+}
+
+.timeline-items {
+    position: relative;
+    margin-left: 10px;
+}
+
+.timeline-items::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: 2px;
+    background-color: #e0e0e0;
+}
+
+.timeline-item {
+    position: relative;
+    padding: 0 0 20px 20px;
+}
+
+.timeline-point {
+    position: absolute;
+    left: -5px;
+    top: 0;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background-color: #1a73e8;
+    border: 2px solid white;
+    z-index: 1;
+}
+
+.timeline-content {
+    background-color: white;
+    border-radius: 4px;
+    padding: 10px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.timeline-date {
+    font-size: 12px;
+    color: #666;
+    margin-bottom: 5px;
+}
+
+.timeline-title {
+    font-size: 14px;
+    font-weight: 500;
+    color: #333;
+    margin-bottom: 5px;
+}
+
+.timeline-description {
+    font-size: 13px;
+    color: #555;
+}
+
+/* Responsive styles for expanded-plus mode */
+@media (max-width: 768px) {
+    .widget-expanded-plus {
+        width: 100% !important;
+        left: 0 !important;
+        right: 0 !important;
+        bottom: 0 !important;
+        height: 80% !important;
+        border-radius: 16px 16px 0 0;
+    }
+    
+    .panes-container {
+        flex-direction: column;
+    }
+    
+    .chat-pane {
+        flex: 0 0 auto;
+        border-right: none;
+        border-bottom: 1px solid #e0e0e0;
+        height: 50%;
+        min-height: 200px;
+    }
+    
+    .deal-content-pane {
+        height: 50%;
+    }
+}
+
+/* Show controls for expanded-plus */
+.expand-plus-btn {
+    display: inline-flex !important;
+}
+
+/* Add additional interaction styles for deal content */
+.add-contact-btn {
+    border: 1px dashed #ccc;
+    background: none;
+    color: #666;
+    padding: 8px;
+    text-align: center;
+    cursor: pointer;
+    border-radius: 4px;
+    margin-top: 10px;
+    font-size: 14px;
+    width: 100%;
+}
+
+.add-contact-btn:hover {
+    background-color: rgba(0, 0, 0, 0.03);
+    color: #333;
+}
+
+.contact-action.email-btn:hover {
+    background-color: rgba(26, 115, 232, 0.1);
+}
+
+.contact-action.remove-btn {
+    color: #f44336;
+}
+
+.contact-action.remove-btn:hover {
+    background-color: rgba(244, 67, 54, 0.1);
+}
+
+.note-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.note-remove-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #f44336;
+    padding: 2px 5px;
+    border-radius: 50%;
+    font-size: 14px;
+    opacity: 0.5;
+    transition: opacity 0.2s;
+}
+
+.note-item:hover .note-remove-btn {
+    opacity: 1;
+}
+
+.note-remove-btn:hover {
+    background-color: rgba(244, 67, 54, 0.1);
+}
+
+.file-action {
+    background: none;
+    border: none;
+    color: #1a73e8;
+    cursor: pointer;
+    padding: 5px;
+    border-radius: 4px;
+}
+
+.file-action.download-btn:hover {
+    background-color: rgba(26, 115, 232, 0.1);
+}
+
+.file-action.remove-btn {
+    color: #f44336;
+}
+
+.file-action.remove-btn:hover {
+    background-color: rgba(244, 67, 54, 0.1);
+}
+
+/* Status indicators for deal stages */
+.deal-stage-indicator {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    margin-right: 5px;
+    vertical-align: middle;
+}
+
+.deal-stage-indicator.discovery {
+    background-color: #9c27b0;
+}
+
+.deal-stage-indicator.qualification {
+    background-color: #2196f3;
+}
+
+.deal-stage-indicator.proposal {
+    background-color: #ff9800;
+}
+
+.deal-stage-indicator.negotiation {
+    background-color: #4caf50;
+}
+
+.deal-stage-indicator.closed-won {
+    background-color: #00c853;
+}
+
+.deal-stage-indicator.closed-lost {
+    background-color: #f44336;
+}
+
+/* Deal info section edit mode */
+.deal-info-edit {
+    display: none;
+}
+
+.deal-info-edit.active {
+    display: block;
+}
+
+.deal-info-view.hidden {
+    display: none;
+}
+
+.deal-info-edit input {
+    width: 100%;
+    padding: 5px;
+    margin-bottom: 5px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.edit-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 5px;
+    margin-top: 5px;
+}
+
+.edit-actions button {
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+.save-btn {
+    background-color: #1a73e8;
+    color: white;
+    border: none;
+}
+
+.save-btn:hover {
+    background-color: #1669d3;
+}
+
+.cancel-btn {
+    background-color: #f5f5f5;
+    color: #333;
+    border: 1px solid #ddd;
+}
+
+.cancel-btn:hover {
+    background-color: #e0e0e0;
+}
+
+.edit-deal-btn {
+    background: none;
+    border: none;
+    color: #1a73e8;
+    cursor: pointer;
+    padding: 3px 5px;
+    border-radius: 4px;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    gap: 3px;
+}
+
+.edit-deal-btn:hover {
+    background-color: rgba(26, 115, 232, 0.1);
+}
+
+.edit-icon {
+    font-size: 12px;
+}
+
+/* Responsive styles for deal content interaction */
+@media (max-width: 768px) {
+    .add-contact-btn,
+    .add-note-btn {
+        padding: 8px 5px;
+        font-size: 13px;
+    }
+    
+    .note-item, .contact-item, .file-item {
+        padding: 8px 5px;
+    }
+    
+    .contact-details, .file-details {
+        flex: 1;
+        min-width: 0;
+    }
+    
+    .contact-name, .file-name {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+}
+
+/* Form groups for editing deal information */
+.form-group {
+    margin-bottom: 10px;
+}
+
+.form-group label {
+    display: block;
+    font-size: 12px;
+    color: #666;
+    margin-bottom: 3px;
+}
+
+.form-group input,
+.form-group select {
+    width: 100%;
+    padding: 6px 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    color: #333;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+    border-color: #1a73e8;
+    outline: none;
+}
+
+/* Stage colors in select dropdown */
+.form-group select option[value="Discovery"] {
+    color: #9c27b0;
+}
+
+.form-group select option[value="Qualification"] {
+    color: #2196f3;
+}
+
+.form-group select option[value="Proposal"] {
+    color: #ff9800;
+}
+
+.form-group select option[value="Negotiation"] {
+    color: #4caf50;
+}
+
+.form-group select option[value="Closed Won"] {
+    color: #00c853;
+}
+
+.form-group select option[value="Closed Lost"] {
+    color: #f44336;
+} 

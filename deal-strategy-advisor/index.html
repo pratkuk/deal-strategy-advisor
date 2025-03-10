@@ -1,0 +1,1029 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sales Workspace</title>
+    <link rel="stylesheet" href="css/main.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Main Workspace Tabs -->
+    <div class="workspace-tabs">
+        <div class="tab active" data-tab="hubspot">
+            <img src="https://www.hubspot.com/hubfs/HubSpot_Logos/HubSpot-Inversed-Favicon.png" alt="Hubspot">
+            <span>Hubspot</span>
+        </div>
+        <div class="tab" data-tab="gmail">
+            <img src="https://www.google.com/gmail/about/static/images/logo-gmail.png?cache=1adba63" alt="Gmail">
+            <span>Gmail</span>
+        </div>
+        <div class="tab" data-tab="calendar">
+            <img src="https://www.gstatic.com/calendar/images/dynamiclogo_2020q4/calendar_31_2x.png" alt="Calendar">
+            <span>Calendar</span>
+        </div>
+        <div class="tab" data-tab="dealhub">
+            <img src="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path fill='white' d='M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14z'/><path fill='white' d='M12 12l-5-5h10z'/></svg>" alt="Dealhub">
+            <span>Dealhub</span>
+        </div>
+    </div>
+
+    <!-- Hubspot Interface -->
+    <div class="workspace-content active" id="hubspot-content">
+        <nav class="hubspot-nav">
+            <div class="nav-left">
+                <img src="https://www.hubspot.com/hubfs/HubSpot_Logos/HubSpot-Inversed-Favicon.png" alt="Hubspot" class="hubspot-logo">
+                <div class="nav-menu">
+                    <a href="#" class="active">Sales</a>
+                    <a href="#">Marketing</a>
+                    <a href="#">Service</a>
+                    <a href="#">Operations</a>
+                </div>
+            </div>
+            <div class="nav-right">
+                <button class="view-deals">View Deals</button>
+            </div>
+        </nav>
+
+        <div class="pipeline-header">
+            <div class="header-left">
+                <h2>Deals</h2>
+                <div class="view-controls">
+                    <button class="view-btn active">Board</button>
+                    <button class="view-btn">Table</button>
+                </div>
+                <select class="pipeline-select">
+                    <option>Sales Pipeline</option>
+                </select>
+            </div>
+            <div class="header-right">
+                <button class="create-btn">Create deal</button>
+            </div>
+        </div>
+
+        <div class="pipeline-board"></div>
+        <div class="deal-control-container"></div>
+    </div>
+
+    <!-- Gmail Interface -->
+    <div class="workspace-content" id="gmail-content">
+        <div class="email-interface">
+            <div class="email-sidebar">
+                <div class="compose-btn">
+                    <button>Compose</button>
+                </div>
+                <div class="email-folders">
+                    <div class="folder active">Inbox</div>
+                    <div class="folder">Sent</div>
+                    <div class="folder">Drafts</div>
+                    <div class="folder">Deal Updates</div>
+                </div>
+            </div>
+            <div class="email-list">
+                <div class="email-list-header">
+                    <div class="email-controls">
+                        <input type="checkbox">
+                        <button>Archive</button>
+                        <button>Delete</button>
+                    </div>
+                    <div class="email-sort">
+                        <select>
+                            <option>Newest first</option>
+                            <option>Oldest first</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="email-items">
+                    <!-- Email items will be populated here -->
+                </div>
+            </div>
+            <div class="email-preview">
+                <div class="email-preview-content">
+                    <!-- Email preview will be populated here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Calendar Interface -->
+    <div class="workspace-content" id="calendar-content">
+        <div class="calendar-interface">
+            <div class="calendar-sidebar">
+                <div class="calendar-navigation">
+                    <button class="prev-month">←</button>
+                    <h2>March 2024</h2>
+                    <button class="next-month">→</button>
+                </div>
+                <div class="calendar-filters">
+                    <label>
+                        <input type="checkbox" checked>
+                        Deal Meetings
+                    </label>
+                    <label>
+                        <input type="checkbox" checked>
+                        Internal Meetings
+                    </label>
+                    <label>
+                        <input type="checkbox" checked>
+                        Customer Calls
+                    </label>
+                </div>
+                <div class="quick-add">
+                    <button>+ Add Event</button>
+                </div>
+            </div>
+            <div class="calendar-main">
+                <div class="calendar-header">
+                    <div>Sun</div>
+                    <div>Mon</div>
+                    <div>Tue</div>
+                    <div>Wed</div>
+                    <div>Thu</div>
+                    <div>Fri</div>
+                    <div>Sat</div>
+                </div>
+                <div class="calendar-grid">
+                    <!-- Calendar days will be populated here -->
+                </div>
+            </div>
+            <div class="event-preview">
+                <div class="event-actions">
+                    <button>Edit</button>
+                    <button>Delete</button>
+                </div>
+                <div class="event-details">
+                    <!-- Event details will be populated here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dealhub Interface -->
+    <div class="workspace-content" id="dealhub-content">
+        <div class="dealhub-interface">
+            <div class="proposal-items">
+                <!-- Proposal items will be populated here -->
+            </div>
+            <div class="proposal-preview">
+                <div class="preview-header">
+                    <h2>Proposal Preview</h2>
+                    <div class="preview-actions">
+                        <button class="edit-btn">Edit</button>
+                        <button class="send-btn">Send</button>
+                        <button class="download-btn">Download</button>
+                    </div>
+                </div>
+                <div class="preview-content">
+                    <!-- Preview content will be populated here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Deal Advisor Widget -->
+    <div id="deal-chat-widget" class="widget-collapsed">
+        <div class="widget-header">
+            <div class="drag-handle">
+                <span class="drag-icon">⋮⋮</span>
+                <span class="header-title">Deal Advisor</span>
+            </div>
+            <div class="widget-controls">
+                <button class="control-btn collapse-btn" title="Collapse">−</button>
+                <button class="control-btn expand-btn" title="Expand">□</button>
+                <button class="control-btn expand-plus-btn" title="Show Deal Details">☰</button>
+            </div>
+        </div>
+        
+        <div class="widget-content">
+            <!-- Hidden Tab Navigation (Kept for JS compatibility) -->
+            <div class="widget-tabs" style="display: none;">
+                <div class="tab-nav">
+                    <button class="tab-btn active" data-tab="agent">Chat</button>
+                    <button class="tab-btn" data-tab="ask">Composer</button>
+                    <button class="tab-btn" data-tab="tasks">Coaching</button>
+                </div>
+            </div>
+            
+            <!-- Two-pane layout container -->
+            <div class="panes-container">
+                <!-- Left pane: Chat area -->
+                <div class="chat-pane">
+                    <div class="tab-content chat-tab active">
+                        <div class="chat-section">
+                            <!-- Chat messages area - expanded to fill available space -->
+                            <div class="chat-messages">
+                                <div class="message system welcome-message no-deal-message active">
+                                    How can I help you today? Add context to get started with a deal.
+                                </div>
+                                <div class="message system welcome-message deal-message">
+                                    How can I help you with <span class="deal-name"></span>?
+                                </div>
+                            </div>
+                            
+                            <!-- Deal Context and Mode Selection in a single row -->
+                            <div class="controls-bar">
+                                <!-- Deal Context -->
+                                <div class="deal-context-bar">
+                                    <div class="no-deal-state active">
+                                        <span class="no-deal-label">No deal selected</span>
+                                        <div class="dropdown">
+                                            <button class="select-deal-btn">Select Deal</button>
+                                            <div class="dropdown-content">
+                                                <a href="#" data-deal="deal-1">Acme Corp - $50,000</a>
+                                                <a href="#" data-deal="deal-2">TechStar Inc - $75,000</a>
+                                                <a href="#" data-deal="deal-3">Global Systems - $120,000</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="active-deal-state">
+                                        <div class="deal-info">
+                                            <span class="active-deal-name"></span>
+                                            <span class="deal-stage-pill"></span>
+                                        </div>
+                                        <div class="deal-actions">
+                                            <button class="switch-deal-btn" title="Switch Deal">↓</button>
+                                            <button class="clear-deal-btn" title="Clear Deal Context">×</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Mode/Tab Selector -->
+                                <div class="widget-mode-selector">
+                                    <div class="dropdown">
+                                        <button class="mode-selector-btn">
+                                            <span class="current-mode">Agent</span>
+                                            <span class="dropdown-arrow">▼</span>
+                                        </button>
+                                        <div class="dropdown-content">
+                                            <a href="#" data-tab="agent" class="active">Chat</a>
+                                            <a href="#" data-tab="ask">Composer</a>
+                                            <a href="#" data-tab="tasks">Coaching</a>
+                                        </div>
+                                    </div>
+                                    <!-- Action buttons -->
+                                    <div class="mode-action-buttons">
+                                        <button class="mode-action-btn" title="Edit">
+                                            <span class="action-icon">✎</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Chat input at the bottom -->
+                            <div class="chat-input-container">
+                                <button id="showContextMenuBtn" title="Show Context Menu" class="context-menu-left-btn">@</button>
+                                <input type="text" id="chatInput" class="chat-input" placeholder="Type a message or @ to mention deal context...">
+                                <button id="fileUploadBtn" title="Upload File" class="file-upload-btn-chat">
+                                    <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24"><path d="M480-320 280-520l56-58 104 104v-326h80v326l104-104 56 58-200 200ZM240-160q-33 0-56.5-23.5T160-240v-120h80v120h480v-120h80v120q0 33-23.5 56.5T720-160H240Z"/></svg>
+                                </button>
+                                <button class="send-btn">→</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Right pane: Deal content area -->
+                <div class="deal-content-pane">
+                    <div class="deal-content-header">
+                        <h3>Deal Details</h3>
+                    </div>
+                    <div class="deal-content-tabs">
+                        <button class="deal-tab-btn active" data-dealtab="overview">Overview</button>
+                        <button class="deal-tab-btn" data-dealtab="files">Files</button>
+                        <button class="deal-tab-btn" data-dealtab="history">History</button>
+                    </div>
+                    <div class="deal-content-body">
+                        <!-- Overview Tab -->
+                        <div class="deal-tab-content overview-tab active">
+                            <div class="no-deal-selected active">
+                                <p>Select a deal to see details</p>
+                            </div>
+                            <div class="deal-overview">
+                                <div class="deal-section">
+                                    <h4>Deal Information <button class="edit-deal-btn" title="Edit Deal Information"><span class="edit-icon">✎</span></button></h4>
+                                    <div class="deal-info-view">
+                                        <div class="deal-info-grid">
+                                            <div class="info-item">
+                                                <span class="info-label">Company:</span>
+                                                <span class="info-value company-name">-</span>
+                                            </div>
+                                            <div class="info-item">
+                                                <span class="info-label">Value:</span>
+                                                <span class="info-value deal-value">-</span>
+                                            </div>
+                                            <div class="info-item">
+                                                <span class="info-label">Stage:</span>
+                                                <span class="info-value">
+                                                    <span class="deal-stage-indicator"></span>
+                                                    <span class="deal-stage">-</span>
+                                                </span>
+                                            </div>
+                                            <div class="info-item">
+                                                <span class="info-label">Close Date:</span>
+                                                <span class="info-value close-date">-</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="deal-info-edit">
+                                        <div class="deal-edit-form">
+                                            <div class="form-group">
+                                                <label for="edit-company">Company:</label>
+                                                <input type="text" id="edit-company" class="edit-company">
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="edit-value">Value:</label>
+                                                <input type="text" id="edit-value" class="edit-value">
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="edit-stage">Stage:</label>
+                                                <select id="edit-stage" class="edit-stage">
+                                                    <option value="Discovery">Discovery</option>
+                                                    <option value="Qualification">Qualification</option>
+                                                    <option value="Proposal">Proposal</option>
+                                                    <option value="Negotiation">Negotiation</option>
+                                                    <option value="Closed Won">Closed Won</option>
+                                                    <option value="Closed Lost">Closed Lost</option>
+                                                </select>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="edit-date">Close Date:</label>
+                                                <input type="date" id="edit-date" class="edit-date">
+                                            </div>
+                                            <div class="edit-actions">
+                                                <button class="cancel-btn">Cancel</button>
+                                                <button class="save-btn">Save</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="deal-section">
+                                    <h4>Key Contacts</h4>
+                                    <div class="contacts-list">
+                                        <p class="no-contacts-message">No contacts added</p>
+                                    </div>
+                                </div>
+                                <div class="deal-section">
+                                    <h4>Notes</h4>
+                                    <div class="deal-notes">
+                                        <p class="no-notes-message">No notes added</p>
+                                        <button class="add-note-btn">+ Add Note</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Files Tab -->
+                        <div class="deal-tab-content files-tab">
+                            <div class="no-deal-selected active">
+                                <p>Select a deal to see files</p>
+                            </div>
+                            <div class="deal-files">
+                                <div class="files-list-container">
+                                    <div class="files-header">
+                                        <h4>Deal Documents</h4>
+                                        <button class="upload-file-btn">+ Upload</button>
+                                    </div>
+                                    <div class="files-list">
+                                        <p class="no-files-message">No files uploaded</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- History Tab -->
+                        <div class="deal-tab-content history-tab">
+                            <div class="no-deal-selected active">
+                                <p>Select a deal to see history</p>
+                            </div>
+                            <div class="deal-history">
+                                <div class="timeline-container">
+                                    <h4>Deal Timeline</h4>
+                                    <div class="timeline-items">
+                                        <p class="no-history-message">No history available</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Context menu modal - shared across all tabs -->
+    <div id="contextModalBackdrop" class="modal-backdrop"></div>
+    <div id="contextMenu" class="context-menu">
+        <div class="context-menu-header-bar">
+            <div class="context-menu-title">Context References</div>
+            <button id="closeContextMenu" class="close-context-menu">×</button>
+        </div>
+        <div class="context-menu-content">
+            <!-- Context menu items will be populated dynamically -->
+        </div>
+    </div>
+
+    <!-- Test mode indicator -->
+    <div id="test-mode-indicator" style="position: fixed; top: 0; right: 0; background-color: #f44336; color: white; padding: 5px 10px; font-size: 12px; z-index: 9999;">
+        TESTING MODE
+    </div>
+
+    <!-- Import main script as a module -->
+    <script type="module" src="js/main.js"></script>
+    
+    <!-- Import test script (only for testing) -->
+    <script src="js/test.js"></script>
+    
+    <!-- Debug script to help troubleshoot -->
+    <script>
+        console.log('Debug script loaded');
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('DOM fully loaded');
+            
+            // Debug workspace tabs
+            const workspaceTabs = document.querySelectorAll('.workspace-tabs .tab');
+            console.log('Workspace tabs found:', workspaceTabs.length);
+            
+            // Set up file upload button in chat
+            const fileUploadBtn = document.getElementById('fileUploadBtn');
+            if (fileUploadBtn) {
+                fileUploadBtn.addEventListener('click', function() {
+                    console.log('File upload button clicked');
+                    // Create a temporary file input element
+                    const fileInput = document.createElement('input');
+                    fileInput.type = 'file';
+                    fileInput.multiple = true;
+                    fileInput.accept = '.pdf,.docx,.txt,.eml';
+                    
+                    // Trigger click to open file dialog
+                    fileInput.click();
+                    
+                    // Handle file selection
+                    fileInput.addEventListener('change', function() {
+                        if (this.files.length > 0) {
+                            console.log('Files selected:', this.files.length);
+                            
+                            // Here we would normally process the files
+                            // For demo, just show a message that files were selected
+                            const chatMessages = document.querySelector('.chat-messages');
+                            if (chatMessages) {
+                                const messageDiv = document.createElement('div');
+                                messageDiv.className = 'message system';
+                                messageDiv.textContent = `${this.files.length} file(s) uploaded successfully.`;
+                                chatMessages.appendChild(messageDiv);
+                                chatMessages.scrollTop = chatMessages.scrollHeight;
+                            }
+                        }
+                    });
+                });
+            }
+            
+            // Setup deal content tabs
+            const dealTabBtns = document.querySelectorAll('.deal-tab-btn');
+            dealTabBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const dealTab = this.getAttribute('data-dealtab');
+                    console.log('Deal tab clicked:', dealTab);
+                    
+                    // Update active tab UI
+                    dealTabBtns.forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // Update content visibility
+                    document.querySelectorAll('.deal-tab-content').forEach(content => {
+                        content.classList.remove('active');
+                    });
+                    
+                    const tabContent = document.querySelector(`.${dealTab}-tab`);
+                    if (tabContent) {
+                        tabContent.classList.add('active');
+                    }
+                });
+            });
+            
+            // Widget mode dropdown functionality
+            const modeDropdown = document.querySelector('.widget-mode-selector .dropdown');
+            if (modeDropdown) {
+                const currentModeSpan = modeDropdown.querySelector('.current-mode');
+                const modeOptions = modeDropdown.querySelectorAll('.dropdown-content a');
+                const modeDropdownBtn = modeDropdown.querySelector('.mode-selector-btn');
+                const modeDropdownContent = modeDropdown.querySelector('.dropdown-content');
+                
+                // Add click handler to show/hide dropdown
+                modeDropdownBtn.addEventListener('click', function(event) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    
+                    // Close all dropdowns first
+                    document.querySelectorAll('.dropdown-content').forEach(dropdown => {
+                        if (dropdown !== modeDropdownContent) {
+                            dropdown.classList.remove('show');
+                        }
+                    });
+                    
+                    // Toggle dropdown visibility
+                    modeDropdownContent.classList.toggle('show');
+                    
+                    console.log('Mode dropdown clicked, show state:', modeDropdownContent.classList.contains('show'));
+                });
+                
+                modeOptions.forEach(option => {
+                    option.addEventListener('click', function(event) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                        
+                        // Hide dropdown
+                        modeDropdownContent.classList.remove('show');
+                        
+                        // Only allow switching to Chat tab (agent)
+                        const tabName = this.getAttribute('data-tab');
+                        if (tabName !== 'agent') {
+                            console.log('Only Chat tab is available');
+                            alert('The ' + this.textContent + ' tab has been removed in this version.');
+                            return;
+                        }
+                        
+                        // Set as active in dropdown
+                        modeOptions.forEach(o => o.classList.remove('active'));
+                        this.classList.add('active');
+                        
+                        // Update current mode text
+                        currentModeSpan.textContent = this.textContent;
+                        
+                        // Update the chat tab to be active
+                        document.querySelectorAll('.tab-content').forEach(content => {
+                            content.classList.remove('active');
+                        });
+                        
+                        const chatTab = document.querySelector('.chat-tab');
+                        if (chatTab) {
+                            chatTab.classList.add('active');
+                        }
+                    });
+                });
+            }
+            
+            // Deal selection dropdown functionality
+            const dealDropdown = document.querySelector('.deal-context-bar .dropdown');
+            if (dealDropdown) {
+                const dealOptions = dealDropdown.querySelectorAll('.dropdown-content a');
+                const dealDropdownBtn = dealDropdown.querySelector('.select-deal-btn');
+                const dealDropdownContent = dealDropdown.querySelector('.dropdown-content');
+                
+                // Add click handler to show/hide dropdown
+                dealDropdownBtn.addEventListener('click', function(event) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    
+                    // Close all dropdowns first
+                    document.querySelectorAll('.dropdown-content').forEach(dropdown => {
+                        if (dropdown !== dealDropdownContent) {
+                            dropdown.classList.remove('show');
+                        }
+                    });
+                    
+                    // Toggle dropdown visibility
+                    dealDropdownContent.classList.toggle('show');
+                    
+                    console.log('Deal dropdown clicked, show state:', dealDropdownContent.classList.contains('show'));
+                });
+                
+                dealOptions.forEach(option => {
+                    option.addEventListener('click', function(event) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                        
+                        // Hide dropdown
+                        dealDropdownContent.classList.remove('show');
+                        
+                        const dealId = this.getAttribute('data-deal');
+                        console.log('Deal selected:', dealId);
+                        
+                        // Simulate deal selection
+                        document.dispatchEvent(new CustomEvent('dealSelected', { 
+                            detail: { 
+                                dealId: dealId,
+                                dealName: this.textContent
+                            } 
+                        }));
+                    });
+                });
+            }
+            
+            // Close all dropdowns when clicking elsewhere on the document
+            document.addEventListener('click', function() {
+                document.querySelectorAll('.dropdown-content').forEach(dropdown => {
+                    dropdown.classList.remove('show');
+                });
+            });
+            
+            // Handle deal selection with expanded deal information
+            document.addEventListener('dealSelected', function(e) {
+                const dealId = e.detail.dealId;
+                const dealName = e.detail.dealName;
+                console.log('Deal selection event received:', dealId, dealName);
+                
+                // Update the deal context bar
+                document.querySelector('.deal-context-bar .no-deal-state').classList.remove('active');
+                document.querySelector('.deal-context-bar .active-deal-state').classList.add('active');
+                
+                // Update deal name in all locations
+                document.querySelectorAll('.deal-name, .active-deal-name').forEach(el => {
+                    el.textContent = dealName;
+                });
+                
+                // Update welcome messages
+                document.querySelector('.welcome-message.no-deal-message').classList.remove('active');
+                document.querySelector('.welcome-message.deal-message').classList.add('active');
+                
+                // Update deal details in the right pane
+                document.querySelectorAll('.no-deal-selected').forEach(el => {
+                    el.classList.remove('active');
+                });
+                
+                // Split the deal name into company and value (assuming format "Company - $Value")
+                const dealParts = dealName.split(' - ');
+                const company = dealParts[0];
+                const value = dealParts[1];
+                
+                // Update deal overview information
+                document.querySelector('.company-name').textContent = company;
+                document.querySelector('.deal-value').textContent = value;
+                
+                // Set some placeholder data for demo purposes
+                document.querySelector('.deal-stage').textContent = 'Negotiation';
+                document.querySelector('.close-date').textContent = '2024-06-30';
+                
+                // Mock adding a contact for demo
+                const contactsList = document.querySelector('.contacts-list');
+                contactsList.innerHTML = '';
+                contactsList.appendChild(createContactElement('Jane Smith', 'CEO', 'jane@example.com'));
+                
+                // Mock adding notes
+                const dealNotes = document.querySelector('.deal-notes');
+                dealNotes.innerHTML = '';
+                dealNotes.appendChild(createNoteElement('Initial meeting scheduled for next week.', '2024-03-15'));
+                dealNotes.appendChild(document.createElement('button')).className = 'add-note-btn';
+                dealNotes.querySelector('.add-note-btn').textContent = '+ Add Note';
+                
+                // Mock adding files
+                const filesList = document.querySelector('.files-list');
+                filesList.innerHTML = '';
+                filesList.appendChild(createFileElement('Proposal.pdf', '2024-03-10', '1.2 MB'));
+                filesList.appendChild(createFileElement('Contract_Draft.docx', '2024-03-12', '850 KB'));
+                
+                // Mock adding history timeline
+                const timeline = document.querySelector('.timeline-items');
+                timeline.innerHTML = '';
+                timeline.appendChild(createTimelineItem('Deal created', '2024-03-01', 'John Doe created this deal'));
+                timeline.appendChild(createTimelineItem('Stage updated', '2024-03-05', 'Deal moved to Negotiation stage'));
+                timeline.appendChild(createTimelineItem('File added', '2024-03-10', 'Proposal.pdf was uploaded'));
+                timeline.appendChild(createTimelineItem('Call scheduled', '2024-03-15', 'Meeting added to calendar'));
+            });
+            
+            // Helper functions to create UI elements
+            function createContactElement(name, title, email) {
+                const contact = document.createElement('div');
+                contact.className = 'contact-item';
+                contact.innerHTML = `
+                    <div class="contact-avatar">${name.charAt(0)}</div>
+                    <div class="contact-details">
+                        <div class="contact-name">${name}</div>
+                        <div class="contact-title">${title}</div>
+                        <div class="contact-email">${email}</div>
+                    </div>
+                    <button class="contact-action">✉</button>
+                `;
+                return contact;
+            }
+            
+            function createNoteElement(text, date) {
+                const note = document.createElement('div');
+                note.className = 'note-item';
+                note.innerHTML = `
+                    <div class="note-text">${text}</div>
+                    <div class="note-date">${date}</div>
+                `;
+                return note;
+            }
+            
+            function createFileElement(filename, date, size) {
+                const file = document.createElement('div');
+                file.className = 'file-item';
+                
+                // Determine file type icon
+                let icon = '📄';
+                if (filename.endsWith('.pdf')) icon = '📕';
+                if (filename.endsWith('.docx')) icon = '📘';
+                if (filename.endsWith('.xlsx')) icon = '📗';
+                if (filename.endsWith('.pptx')) icon = '📙';
+                
+                file.innerHTML = `
+                    <div class="file-icon">${icon}</div>
+                    <div class="file-details">
+                        <div class="file-name">${filename}</div>
+                        <div class="file-info">${date} · ${size}</div>
+                    </div>
+                    <button class="file-download">↓</button>
+                `;
+                return file;
+            }
+            
+            function createTimelineItem(title, date, description) {
+                const item = document.createElement('div');
+                item.className = 'timeline-item';
+                item.innerHTML = `
+                    <div class="timeline-point"></div>
+                    <div class="timeline-content">
+                        <div class="timeline-date">${date}</div>
+                        <div class="timeline-title">${title}</div>
+                        <div class="timeline-description">${description}</div>
+                    </div>
+                `;
+                return item;
+            }
+            
+            // Direct fix for workspace tabs
+            workspaceTabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    const tabName = this.getAttribute('data-tab');
+                    console.log('Direct click on workspace tab:', tabName);
+                    
+                    // Update active tab UI
+                    workspaceTabs.forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // Update content
+                    document.querySelectorAll('.workspace-content').forEach(content => {
+                        content.classList.remove('active');
+                    });
+                    
+                    const targetContent = document.getElementById(`${tabName}-content`);
+                    if (targetContent) {
+                        targetContent.classList.add('active');
+                    }
+                });
+            });
+            
+            // Direct fix for widget tabs - now hidden but still functional
+            const widgetTabs = document.querySelectorAll('.widget-tabs .tab-btn');
+            widgetTabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    const tabName = this.getAttribute('data-tab');
+                    console.log('Tab changed to:', tabName);
+                    
+                    // Only allow Chat tab (agent) to be active
+                    if (tabName !== 'agent') {
+                        console.log('Only Chat tab is available');
+                        return;
+                    }
+                    
+                    // Update active tab UI
+                    widgetTabs.forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // Ensure chat tab is active
+                    document.querySelectorAll('.tab-content').forEach(content => {
+                        content.classList.remove('active');
+                    });
+                    document.querySelector('.chat-tab').classList.add('active');
+                });
+            });
+            
+            // Fix the widget position and visibility
+            const widget = document.getElementById('deal-chat-widget');
+            if (widget) {
+                console.log('Widget found, setting up collapse/expand functionality');
+                
+                // Make sure it's visible initially
+                widget.classList.remove('widget-collapsed');
+                widget.classList.add('widget-expanded');
+                
+                // Position it properly
+                widget.style.position = 'fixed';
+                widget.style.bottom = '20px';
+                widget.style.right = '20px';
+                widget.style.zIndex = '1000';
+                widget.style.height = '500px';
+                
+                // Ensure content is visible
+                const widgetContent = widget.querySelector('.widget-content');
+                if (widgetContent) widgetContent.style.display = 'block';
+                
+                const controlsBar = widget.querySelector('.controls-bar');
+                if (controlsBar) controlsBar.style.display = 'flex';
+                
+                const chatInput = widget.querySelector('.chat-input-container');
+                if (chatInput) chatInput.style.display = 'flex';
+                
+                // Set up collapse/expand functionality
+                const collapseBtn = widget.querySelector('.collapse-btn');
+                const expandBtn = widget.querySelector('.expand-btn');
+                const expandPlusBtn = widget.querySelector('.expand-plus-btn');
+                
+                // Toggle widget collapse
+                if (collapseBtn) {
+                    console.log('Collapse button found, adding click handler');
+                    collapseBtn.addEventListener('click', function() {
+                        console.log('Collapse button clicked');
+                        if (widget.classList.contains('widget-collapsed')) {
+                            // Expand
+                            console.log('Expanding widget');
+                            widget.classList.remove('widget-collapsed');
+                            widget.classList.add('widget-expanded');
+                            widget.classList.remove('widget-expanded-plus');
+                            widget.style.height = '500px';
+                            widget.style.width = '320px';
+                            
+                            // Show content elements
+                            const widgetContent = widget.querySelector('.widget-content');
+                            if (widgetContent) widgetContent.style.display = 'block';
+                            
+                            const controlsBar = widget.querySelector('.controls-bar');
+                            if (controlsBar) controlsBar.style.display = 'flex';
+                            
+                            const chatInput = widget.querySelector('.chat-input-container');
+                            if (chatInput) chatInput.style.display = 'flex';
+                            
+                            // Hide deal content pane
+                            const dealContentPane = widget.querySelector('.deal-content-pane');
+                            if (dealContentPane) dealContentPane.style.display = 'none';
+                        } else {
+                            // Collapse
+                            console.log('Collapsing widget');
+                            widget.classList.add('widget-collapsed');
+                            widget.classList.remove('widget-expanded');
+                            widget.classList.remove('widget-expanded-plus');
+                            widget.style.height = '40px';
+                            widget.style.width = '320px';
+                            
+                            // Hide content elements
+                            const widgetContent = widget.querySelector('.widget-content');
+                            if (widgetContent) widgetContent.style.display = 'none';
+                            
+                            const controlsBar = widget.querySelector('.controls-bar');
+                            if (controlsBar) controlsBar.style.display = 'none';
+                            
+                            const chatInput = widget.querySelector('.chat-input-container');
+                            if (chatInput) chatInput.style.display = 'none';
+                        }
+                    });
+                }
+                
+                // Toggle widget expand-plus
+                if (expandPlusBtn) {
+                    console.log('Expand-plus button found, adding click handler');
+                    expandPlusBtn.addEventListener('click', function() {
+                        console.log('Expand-plus button clicked');
+                        
+                        if (widget.classList.contains('widget-collapsed')) {
+                            // If collapsed, first expand
+                            widget.classList.remove('widget-collapsed');
+                            widget.classList.add('widget-expanded');
+                        }
+                        
+                        if (!widget.classList.contains('widget-expanded-plus')) {
+                            // Switch to expanded-plus view
+                            widget.classList.remove('widget-expanded');
+                            widget.classList.add('widget-expanded-plus');
+                            widget.style.width = '700px';
+                            widget.style.height = '500px';
+                            
+                            // Show deal content pane
+                            const dealContentPane = widget.querySelector('.deal-content-pane');
+                            if (dealContentPane) dealContentPane.style.display = 'block';
+                            
+                            // Ensure chat pane is visible
+                            const chatPane = widget.querySelector('.chat-pane');
+                            if (chatPane) chatPane.style.display = 'block';
+                        } else {
+                            // Switch back to regular expanded view
+                            widget.classList.remove('widget-expanded-plus');
+                            widget.classList.add('widget-expanded');
+                            widget.style.width = '320px';
+                            
+                            // Hide deal content pane
+                            const dealContentPane = widget.querySelector('.deal-content-pane');
+                            if (dealContentPane) dealContentPane.style.display = 'none';
+                        }
+                    });
+                }
+                
+                // Toggle widget expand (maximize)
+                if (expandBtn) {
+                    console.log('Expand button found, adding click handler');
+                    expandBtn.addEventListener('click', function() {
+                        console.log('Expand button clicked');
+                        
+                        // If collapsed, first expand
+                        if (widget.classList.contains('widget-collapsed')) {
+                            widget.classList.remove('widget-collapsed');
+                            widget.classList.add('widget-expanded');
+                            widget.style.height = '500px';
+                            return;
+                        }
+                        
+                        // Handle maximizing
+                        if (!widget.classList.contains('widget-maximized')) {
+                            // Maximize the widget
+                            widget.classList.add('widget-maximized');
+                            widget.style.width = '100%';
+                            widget.style.height = '80%';
+                            widget.style.top = '10%';
+                            widget.style.left = '0';
+                            widget.style.right = '0';
+                            widget.style.bottom = '0';
+                            widget.style.margin = 'auto';
+                        } else {
+                            // Restore to previous state
+                            widget.classList.remove('widget-maximized');
+                            
+                            if (widget.classList.contains('widget-expanded-plus')) {
+                                widget.style.width = '700px';
+                            } else {
+                                widget.style.width = '320px';
+                            }
+                            
+                            widget.style.height = '500px';
+                            widget.style.top = 'auto';
+                            widget.style.left = 'auto';
+                            widget.style.right = '20px';
+                            widget.style.bottom = '20px';
+                            widget.style.margin = '0';
+                        }
+                    });
+                }
+                
+                // Also make the drag handle work
+                const dragHandle = widget.querySelector('.drag-handle');
+                if (dragHandle) {
+                    console.log('Drag handle found, adding drag functionality');
+                    let isDragging = false;
+                    let offsetX, offsetY;
+                    
+                    dragHandle.addEventListener('mousedown', function(e) {
+                        isDragging = true;
+                        offsetX = e.clientX - widget.getBoundingClientRect().left;
+                        offsetY = e.clientY - widget.getBoundingClientRect().top;
+                    });
+                    
+                    document.addEventListener('mousemove', function(e) {
+                        if (isDragging) {
+                            widget.style.left = (e.clientX - offsetX) + 'px';
+                            widget.style.top = (e.clientY - offsetY) + 'px';
+                            widget.style.right = 'auto';
+                            widget.style.bottom = 'auto';
+                        }
+                    });
+                    
+                    document.addEventListener('mouseup', function() {
+                        isDragging = false;
+                    });
+                    
+                    // Double-click on drag handle to toggle collapse
+                    dragHandle.addEventListener('dblclick', function() {
+                        console.log('Double-click on drag handle');
+                        if (widget.classList.contains('widget-collapsed')) {
+                            // Expand
+                            console.log('Expanding widget');
+                            widget.classList.remove('widget-collapsed');
+                            widget.classList.add('widget-expanded');
+                            widget.style.height = '500px';
+                            
+                            // Show content elements
+                            const widgetContent = widget.querySelector('.widget-content');
+                            if (widgetContent) widgetContent.style.display = 'block';
+                            
+                            const controlsBar = widget.querySelector('.controls-bar');
+                            if (controlsBar) controlsBar.style.display = 'flex';
+                            
+                            const chatInput = widget.querySelector('.chat-input-container');
+                            if (chatInput) chatInput.style.display = 'flex';
+                        } else {
+                            // Collapse
+                            console.log('Collapsing widget');
+                            widget.classList.add('widget-collapsed');
+                            widget.classList.remove('widget-expanded');
+                            widget.classList.remove('widget-expanded-plus');
+                            widget.style.height = '40px';
+                            
+                            // Hide content elements
+                            const widgetContent = widget.querySelector('.widget-content');
+                            if (widgetContent) widgetContent.style.display = 'none';
+                            
+                            const controlsBar = widget.querySelector('.controls-bar');
+                            if (controlsBar) controlsBar.style.display = 'none';
+                            
+                            const chatInput = widget.querySelector('.chat-input-container');
+                            if (chatInput) chatInput.style.display = 'none';
+                        }
+                    });
+                }
+                
+                // Initially hide the deal content pane
+                const dealContentPane = widget.querySelector('.deal-content-pane');
+                if (dealContentPane) dealContentPane.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html> 

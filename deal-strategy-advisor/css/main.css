@@ -1,0 +1,13 @@
+/* main.css - Main stylesheet that imports all other CSS files */
+
+/* Import global styles */
+@import 'components/global.css';
+
+/* Import workspace styles */
+@import 'workspace.css';
+
+/* Import widget styles */
+@import 'widget.css';
+
+/* Import responsive styles */
+@import 'components/responsive.css'; 
