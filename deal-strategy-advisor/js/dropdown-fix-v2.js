@@ -143,18 +143,24 @@
                 agentDropdown.querySelectorAll('a').forEach(a => a.classList.remove('active'));
                 this.classList.add('active');
                 
-                // Switch tab content if needed
-                if (tabId) {
+                // MODIFIED: Keep chat-tab active for all tab selections
+                // This ensures the widget doesn't go blank when selecting other tabs
+                const chatTabContent = document.querySelector('.tab-content.chat-tab');
+                
+                // We'll always keep the chat tab visible but update active classes
+                if (chatTabContent) {
                     // Remove active class from all tab contents
                     document.querySelectorAll('.tab-content').forEach(tc => tc.classList.remove('active'));
                     
-                    // Add active class to matching tab content
-                    const tabContent = document.querySelector(`.tab-content.${tabId}-tab`);
-                    if (tabContent) {
-                        tabContent.classList.add('active');
-                    } else {
-                        console.error(`❌ Tab content for ${tabId} not found`);
-                    }
+                    // Always show the chat tab content
+                    chatTabContent.classList.add('active');
+                    
+                    // Dispatch a custom event to let other components know about the tab change
+                    document.dispatchEvent(new CustomEvent('tabChanged', { 
+                        detail: { tabId: tabId }
+                    }));
+                    
+                    console.log(`🛠️ Keeping chat tab visible while setting active tab to: ${tabId}`);
                 }
                 
                 // Close dropdown

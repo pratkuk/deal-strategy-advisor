@@ -88,4 +88,22 @@ div.show[class*="dropdown"],
 div.show[class*="content"] {
     bottom: 100% !important;
     top: auto !important;
+}
+
+/* Fix for tab content always being visible */
+.tab-content.chat-tab {
+    display: block !important;
+}
+
+.tab-content.chat-tab.active {
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+/* Make sure other tab contents don't interfere */
+.tab-content.composer-tab,
+.tab-content.coaching-tab,
+.tab-content.ask-tab,
+.tab-content.tasks-tab {
+    display: none !important;
 } 
