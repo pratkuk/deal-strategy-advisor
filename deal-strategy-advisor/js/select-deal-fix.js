@@ -23,67 +23,48 @@
     function fixSelectDealDropdown() {
         console.log("📋 Attempting to fix Select Deal dropdown");
         
-        // Find the elements
-        const dealButton = document.querySelector('.select-deal-btn');
-        if (!dealButton) {
-            console.error("❌ Select Deal button not found");
-            return;
+        // Get or create the select deal button
+        let selectDealBtn = document.querySelector('.select-deal-btn');
+        if (!selectDealBtn) {
+            selectDealBtn = document.createElement('button');
+            selectDealBtn.className = 'select-deal-btn';
+            selectDealBtn.textContent = 'Select Deal';
         }
         
-        // Force direct styling to make button visible and clickable
-        dealButton.style.position = "relative";
-        dealButton.style.zIndex = "2000";
-        dealButton.style.cursor = "pointer";
-        dealButton.style.backgroundColor = "#4285f4";
-        dealButton.style.color = "white";
-        dealButton.style.border = "none";
-        dealButton.style.borderRadius = "4px";
-        dealButton.style.padding = "8px 12px";
-        
-        // Clone to remove any existing handlers
-        const newDealButton = dealButton.cloneNode(true);
-        dealButton.parentNode.replaceChild(newDealButton, dealButton);
-        
-        // Create a completely new dropdown menu from scratch
-        const dealContainer = newDealButton.closest('.no-deal-state');
-        if (!dealContainer) {
-            console.error("❌ Deal container not found");
-            return;
-        }
-        
-        // Remove old dropdown content if it exists
-        const oldDropdown = dealContainer.querySelector('.dropdown-content');
+        // Remove any existing dropdown content
+        const oldDropdown = document.querySelector('.select-deal-dropdown');
         if (oldDropdown) {
             oldDropdown.remove();
         }
         
         // Create new dropdown
-        const newDropdown = document.createElement('div');
-        newDropdown.className = 'dropdown-content select-deal-dropdown';
-        newDropdown.style.display = 'none';
-        newDropdown.style.position = 'absolute';
-        newDropdown.style.top = '100%';
-        newDropdown.style.left = '0';
-        newDropdown.style.marginTop = '5px';
-        newDropdown.style.backgroundColor = '#fff';
-        newDropdown.style.minWidth = '220px';
-        newDropdown.style.boxShadow = '0px 8px 16px 0px rgba(0,0,0,0.2)';
-        newDropdown.style.zIndex = '9999';
-        newDropdown.style.borderRadius = '4px';
-        newDropdown.style.border = '1px solid rgba(0,0,0,0.1)';
+        const dropdown = document.createElement('div');
+        dropdown.className = 'dropdown-content select-deal-dropdown';
+        dropdown.style.display = 'none';
+        dropdown.style.position = 'absolute';
+        dropdown.style.top = '100%';
+        dropdown.style.left = '0';
+        dropdown.style.marginTop = '5px';
+        dropdown.style.backgroundColor = '#fff';
+        dropdown.style.minWidth = '220px';
+        dropdown.style.boxShadow = '0px 8px 16px 0px rgba(0,0,0,0.2)';
+        dropdown.style.zIndex = '9999';
+        dropdown.style.borderRadius = '4px';
+        dropdown.style.border = '1px solid rgba(0,0,0,0.1)';
         
-        // Add deal options from data or hardcoded examples
-        const deals = window.dealStore ? window.dealStore.deals : [
+        // Get deals from dealStore
+        const deals = window.dealStore ? Object.values(window.dealStore.deals) : [
             { id: 'deal-1', name: 'Acme Corp', value: '$50,000' },
             { id: 'deal-2', name: 'TechStar Inc', value: '$75,000' },
             { id: 'deal-3', name: 'Global Systems', value: '$120,000' }
         ];
         
+        // Add deal options
         deals.forEach(deal => {
             const dealOption = document.createElement('a');
             dealOption.href = '#';
-            dealOption.setAttribute('data-deal', deal.id || 'deal-1');
-            dealOption.textContent = `${deal.name || 'Company'} - ${deal.value || '$0'}`;
+            dealOption.setAttribute('data-deal', deal.id);
+            dealOption.textContent = `${deal.name} - ${deal.value}`;
             dealOption.style.color = '#333';
             dealOption.style.padding = '10px 16px';
             dealOption.style.textDecoration = 'none';
@@ -109,42 +90,41 @@
                 handleDealSelection(dealId, this.textContent);
                 
                 // Hide dropdown
-                newDropdown.style.display = 'none';
+                dropdown.style.display = 'none';
             });
             
-            newDropdown.appendChild(dealOption);
+            dropdown.appendChild(dealOption);
         });
         
         // Add dropdown to container
-        const dropdownContainer = newDealButton.parentNode;
-        dropdownContainer.appendChild(newDropdown);
+        const dropdownContainer = selectDealBtn.parentNode || document.querySelector('.deal-selector');
+        if (dropdownContainer) {
+            dropdownContainer.style.position = 'relative';
+            dropdownContainer.appendChild(dropdown);
+        }
         
         // Toggle dropdown on button click
-        newDealButton.addEventListener('click', function(e) {
+        selectDealBtn.addEventListener('click', function(e) {
             e.preventDefault();
             e.stopPropagation();
             console.log("📋 Select Deal button clicked");
             
             // Close any other open dropdowns
             document.querySelectorAll('.dropdown-content').forEach(content => {
-                if (content !== newDropdown) {
+                if (content !== dropdown) {
                     content.style.display = 'none';
                 }
             });
             
             // Toggle this dropdown
-            newDropdown.style.display = 
-                newDropdown.style.display === 'none' || newDropdown.style.display === '' 
-                ? 'block' 
-                : 'none';
-                
-            console.log("📋 Dropdown toggled: " + newDropdown.style.display);
+            dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
+            console.log("📋 Dropdown toggled:", dropdown.style.display);
         });
         
         // Close dropdown when clicking outside
         document.addEventListener('click', function(e) {
             if (!dropdownContainer.contains(e.target)) {
-                newDropdown.style.display = 'none';
+                dropdown.style.display = 'none';
             }
         });
         

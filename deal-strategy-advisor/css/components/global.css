@@ -212,4 +212,23 @@ textarea:focus {
 
 .slide-up {
     animation: slideUp 0.3s ease-in-out forwards;
+}
+
+.agent-selector {
+    position: relative;
+}
+
+.agent-selector .dropdown-content {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    min-width: 200px;
+    margin-top: 4px;
+}
+
+/* Ensure the dropdown trigger is clickable */
+.agent-selector .dropdown-trigger {
+    position: relative;
+    z-index: 1000;
+    cursor: pointer;
 } 

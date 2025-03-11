@@ -1,1071 +1,679 @@
-/**
- * Deal Content UI Module
- * Handles UI interactions for the deal content pane
- */
-
-import * as DealData from './dealData.js';
-
-// Cache UI elements for performance
-let dealContentPane;
-let dealTabBtns;
-let dealTabContents;
-let addNoteBtn;
-let uploadFileBtn;
-let noDealElements;
-let dealOverviewEl;
-let dealSections = {};
-
-// Initialize the deal content UI
-export function init() {
-    console.log('Initializing deal content UI');
+// DealContent Module
+const DealContent = {
+    // State
+    currentDeal: null,
     
     // Cache DOM elements
-    dealContentPane = document.querySelector('.deal-content-pane');
-    dealTabBtns = document.querySelectorAll('.deal-tab-btn');
-    dealTabContents = document.querySelectorAll('.deal-tab-content');
-    addNoteBtn = document.querySelector('.add-note-btn');
-    uploadFileBtn = document.querySelector('.upload-file-btn');
-    noDealElements = document.querySelectorAll('.no-deal-selected');
-    dealOverviewEl = document.querySelector('.deal-overview');
+    elements: {
+        widget: null,
+        contentPane: null,
+        chatPane: null,
+        tabsContainer: null,
+        contentContainer: null
+    },
     
-    // Cache deal section elements
-    dealSections = {
-        companyName: document.querySelector('.company-name'),
-        dealValue: document.querySelector('.deal-value'),
-        dealStage: document.querySelector('.deal-stage'),
-        dealStageIndicator: document.querySelector('.deal-stage-indicator'),
-        closeDate: document.querySelector('.close-date'),
-        contactsList: document.querySelector('.contacts-list'),
-        notesList: document.querySelector('.deal-notes'),
-        filesList: document.querySelector('.files-list'),
-        timeline: document.querySelector('.timeline-items'),
-        // Edit form elements
-        editDealBtn: document.querySelector('.edit-deal-btn'),
-        dealInfoView: document.querySelector('.deal-info-view'),
-        dealInfoEdit: document.querySelector('.deal-info-edit'),
-        editCompanyInput: document.querySelector('.edit-company'),
-        editValueInput: document.querySelector('.edit-value'),
-        editStageSelect: document.querySelector('.edit-stage'),
-        editDateInput: document.querySelector('.edit-date'),
-        saveDealBtn: document.querySelector('.save-btn'),
-        cancelDealBtn: document.querySelector('.cancel-btn')
-    };
-    
-    // Initialize tab navigation
-    dealTabBtns.forEach(btn => {
-        btn.addEventListener('click', function() {
-            const dealTab = this.getAttribute('data-dealtab');
-            
-            // Update active tab UI
-            dealTabBtns.forEach(t => t.classList.remove('active'));
-            this.classList.add('active');
-            
-            // Update content visibility
-            dealTabContents.forEach(content => {
-                content.classList.remove('active');
-            });
-            
-            const tabContent = document.querySelector(`.${dealTab}-tab`);
-            if (tabContent) {
-                tabContent.classList.add('active');
-            }
-        });
-    });
-    
-    // Add note button event listener
-    if (addNoteBtn) {
-        addNoteBtn.addEventListener('click', showAddNoteDialog);
-    }
-    
-    // Upload file button event listener
-    if (uploadFileBtn) {
-        uploadFileBtn.addEventListener('click', handleFileUpload);
-    }
-    
-    // Setup edit deal info functionality
-    if (dealSections.editDealBtn) {
-        dealSections.editDealBtn.addEventListener('click', showEditDealForm);
-    }
-    
-    if (dealSections.saveDealBtn) {
-        dealSections.saveDealBtn.addEventListener('click', saveDealChanges);
-    }
-    
-    if (dealSections.cancelDealBtn) {
-        dealSections.cancelDealBtn.addEventListener('click', cancelDealEdit);
-    }
-    
-    // Listen for deal selection events from the main app
-    document.addEventListener('dealSelected', handleDealSelected);
-    
-    // Listen for deal cleared events
-    document.addEventListener('dealCleared', handleDealCleared);
-    
-    // Set up clear deal button
-    const clearDealBtn = document.querySelector('.clear-deal-btn');
-    if (clearDealBtn) {
-        clearDealBtn.addEventListener('click', function() {
-            DealData.clearCurrentDeal();
-            document.dispatchEvent(new CustomEvent('dealCleared'));
-        });
-    }
-}
-
-/**
- * Handle when a deal is selected
- */
-function handleDealSelected(event) {
-    const dealId = event.detail.dealId;
-    
-    // Set as current deal in the data store
-    const deal = DealData.setCurrentDeal(dealId);
-    if (!deal) return;
-    
-    console.log('Deal Content: Deal selected:', dealId, deal.name);
-    
-    // Hide no deal selected elements
-    noDealElements.forEach(el => el.classList.remove('active'));
-    
-    // Populate deal data in the UI
-    populateDealData(deal);
-    
-    // Make sure the deal content is visible
-    showDealContent();
-}
-
-/**
- * Show deal content by activating tabs and expanding if needed
- */
-function showDealContent() {
-    const widget = document.getElementById('deal-chat-widget');
-    const dealContentPane = document.querySelector('.deal-content-pane');
-    
-    if (widget && dealContentPane) {
-        // If not already in expanded-plus mode, try to expand
-        if (!widget.classList.contains('widget-expanded-plus')) {
-            // If widget is collapsed, expand it first
-            if (widget.classList.contains('widget-collapsed')) {
-                widget.classList.remove('widget-collapsed');
-                widget.classList.add('widget-expanded');
-                widget.style.height = '500px';
-            }
-            
-            // Expand to show deal content
-            widget.classList.remove('widget-expanded');
-            widget.classList.add('widget-expanded-plus');
-            widget.style.width = '700px';
-            widget.style.height = '500px';
-            
-            // Show deal content pane
-            dealContentPane.style.display = 'block';
-            
-            // Ensure chat pane is visible too
-            const chatPane = widget.querySelector('.chat-pane');
-            if (chatPane) chatPane.style.display = 'block';
-        }
-    }
-}
-
-// Handle when a deal is cleared
-function handleDealCleared() {
-    // Reset UI to no deal state
-    noDealElements.forEach(el => el.classList.add('active'));
-    
-    // Clear all content areas
-    dealSections.companyName.textContent = '-';
-    dealSections.dealValue.textContent = '-';
-    dealSections.dealStage.textContent = '-';
-    dealSections.closeDate.textContent = '-';
-    dealSections.contactsList.innerHTML = '<p class="no-contacts-message">No contacts added</p>';
-    dealSections.notesList.innerHTML = '';
-    const addNoteBtn = document.createElement('button');
-    addNoteBtn.className = 'add-note-btn';
-    addNoteBtn.textContent = '+ Add Note';
-    addNoteBtn.addEventListener('click', showAddNoteDialog);
-    dealSections.notesList.appendChild(addNoteBtn);
-    dealSections.filesList.innerHTML = '<p class="no-files-message">No files uploaded</p>';
-    dealSections.timeline.innerHTML = '<p class="no-history-message">No history available</p>';
-}
-
-/**
- * Populate deal data in the UI
- */
-function populateDealData(deal) {
-    console.log('Populating deal data:', deal.id, deal.name);
-    
-    // Format deal data for display
-    const formattedDeal = DealData.formatDealData(deal);
-    
-    // Update basic deal info
-    dealSections.companyName.textContent = formattedDeal.name;
-    dealSections.dealValue.textContent = formattedDeal.value;
-    dealSections.dealStage.textContent = formattedDeal.stage;
-    dealSections.closeDate.textContent = formattedDeal.closeDate;
-    
-    // Update stage indicator
-    updateStageIndicator(formattedDeal.stage);
-    
-    // Update contacts list
-    renderContacts(formattedDeal.contacts);
-    
-    // Update notes
-    renderNotes(formattedDeal.notes);
-    
-    // Update files
-    renderFiles(formattedDeal.files);
-    console.log('Rendered files:', formattedDeal.files.length);
-    
-    // Update history timeline
-    renderTimeline(formattedDeal.history);
-    console.log('Rendered timeline items:', formattedDeal.history.length);
-    
-    // Also update the form fields for editing
-    if (dealSections.editCompanyInput) {
-        dealSections.editCompanyInput.value = formattedDeal.name;
-    }
-    
-    if (dealSections.editValueInput) {
-        dealSections.editValueInput.value = formattedDeal.value;
-    }
-    
-    if (dealSections.editStageSelect) {
-        // Try to match the stage in the select options
-        const options = Array.from(dealSections.editStageSelect.options);
-        const matchingOption = options.find(option => 
-            option.value.toLowerCase() === formattedDeal.stage.toLowerCase()
-        );
+    // Initialize the module
+    init() {
+        // Cache DOM elements
+        this.elements.widget = document.getElementById('deal-chat-widget');
+        this.elements.contentPane = document.querySelector('.deal-content-pane');
+        this.elements.chatPane = document.querySelector('.chat-pane');
         
-        if (matchingOption) {
-            dealSections.editStageSelect.value = matchingOption.value;
+        // Initialize event listeners
+        this.initializeEventListeners();
+        
+        console.log('DealContent module initialized');
+    },
+    
+    // Set up event listeners
+    initializeEventListeners() {
+        // Listen for deal selection
+        document.addEventListener('dealSelected', this.handleDealSelected.bind(this));
+        
+        // Listen for dealCleared event
+        document.addEventListener('dealCleared', this.handleDealCleared.bind(this));
+        
+        // Add click handler for clear deal button
+        const clearDealBtn = document.querySelector('.clear-deal-btn');
+        if (clearDealBtn) {
+            clearDealBtn.addEventListener('click', this.clearDeal.bind(this));
+        }
+        
+        // Listen for file uploads
+        document.addEventListener('fileUploaded', (e) => {
+            if (e.detail && e.detail.files) {
+                this.handleFileUploaded(e.detail.files);
+            }
+        });
+        
+        // Listen for tab clicks
+        document.addEventListener('click', (e) => {
+            if (e.target.closest('.deal-tab-btn')) {
+                const tab = e.target.closest('.deal-tab-btn');
+                this.handleTabClick(tab);
+            }
+        });
+        
+        // Listen for upload button clicks
+        document.addEventListener('click', (e) => {
+            if (e.target.matches('.upload-file-btn')) {
+                e.preventDefault();
+                e.stopPropagation();
+                this.triggerFileUpload();
+            }
+        });
+    },
+    
+    // Clear the current deal
+    clearDeal() {
+        console.log('Clearing deal');
+        this.currentDeal = null;
+        
+        // Reset UI to "no deal selected" state
+        this.resetDealUI();
+        
+        // Hide deal details pane
+        this.collapseWidget();
+        
+        // Dispatch dealCleared event
+        document.dispatchEvent(new CustomEvent('dealCleared'));
+    },
+    
+    // Handle the dealCleared event
+    handleDealCleared() {
+        console.log('Deal cleared event received');
+        this.currentDeal = null;
+        this.resetDealUI();
+        this.collapseWidget();
+    },
+    
+    // Reset UI to "no deal selected" state
+    resetDealUI() {
+        // Show "no deal selected" messages
+        const noDealSelectedElements = document.querySelectorAll('.no-deal-selected');
+        noDealSelectedElements.forEach(el => el.classList.add('active'));
+        
+        // Hide deal overview and deal-specific content
+        const dealOverview = document.querySelector('.deal-overview');
+        if (dealOverview) dealOverview.classList.remove('active');
+        
+        const dealFiles = document.querySelector('.deal-files');
+        if (dealFiles) dealFiles.classList.remove('active');
+        
+        const dealHistory = document.querySelector('.deal-history');
+        if (dealHistory) dealHistory.classList.remove('active');
+        
+        // Reset active/no deal state in chat widget
+        const noDealState = document.querySelector('.no-deal-state');
+        if (noDealState) noDealState.classList.add('active');
+        
+        const activeDealState = document.querySelector('.active-deal-state');
+        if (activeDealState) activeDealState.classList.remove('active');
+    },
+    
+    // Collapse widget to standard size
+    collapseWidget() {
+        if (!this.elements.widget) return;
+        
+        // Set widget to default expanded mode without deal content
+        this.elements.widget.className = 'widget-expanded';
+    },
+    
+    // Handle deal selection
+    handleDealSelected(event) {
+        console.log('Deal selected event received:', event.detail);
+        
+        // Special handling for dropdown deals that might not match directly
+        const { dealId, deal } = event.detail;
+        
+        // For dropdown entries - these are special cases that need direct handling
+        if (dealId === 'deal-1' || dealId === 'deal-2' || dealId === 'deal-3') {
+            console.log('Handling special dropdown deal:', dealId);
+            
+            // Create mapping for the specific deals shown in dropdown
+            const specialDeals = {
+                'deal-1': {
+                    id: 'deal-1',
+                    name: 'Acme Corporation',
+                    value: '$52,500',
+                    stage: 'Proposal',
+                    closeDate: '2024-05-15',
+                    company: { size: '250-500 employees', industry: 'Manufacturing' },
+                    files: [],
+                    notes: [],
+                    history: []
+                },
+                'deal-2': {
+                    id: 'deal-2',
+                    name: 'TechStar Inc',
+                    value: '$78,500',
+                    stage: 'Discovery',
+                    closeDate: '2024-06-30',
+                    company: { size: '100-250 employees', industry: 'Technology' },
+                    files: [],
+                    notes: [],
+                    history: []
+                },
+                'deal-3': {
+                    id: 'deal-3',
+                    name: 'Global Systems',
+                    value: '$124,000',
+                    stage: 'Negotiation',
+                    closeDate: '2024-04-15',
+                    company: { size: '500+ employees', industry: 'Financial Services' },
+                    files: [],
+                    notes: [],
+                    history: []
+                }
+            };
+            
+            // Use our special mapping if available
+            const specialDeal = specialDeals[dealId];
+            if (specialDeal) {
+                console.log('Using special deal data for:', dealId);
+                
+                // Store the current deal
+                this.currentDeal = specialDeal;
+                
+                // Expand the widget
+                this.expandWidget();
+                
+                // Render the deal content
+                this.renderSpecialDealContent(specialDeal);
+                
+                // Update UI to show deal is selected
+                this.updateDealUI(specialDeal);
+                
+                console.log('Special deal selected:', dealId);
+                return;
+            }
+        }
+        
+        // Regular handling for other deals
+        if (deal) {
+            // Store the current deal
+            this.currentDeal = deal;
+            
+            // Expand the widget
+            this.expandWidget();
+            
+            // Render the deal content
+            this.renderDealContent(deal);
+            
+            // Update UI to show deal is selected
+            this.updateDealUI(deal);
+            
+            console.log('Deal selected:', dealId);
         } else {
-            // If no match, try to add the current stage as an option
-            const newOption = document.createElement('option');
-            newOption.value = formattedDeal.stage;
-            newOption.textContent = formattedDeal.stage;
-            dealSections.editStageSelect.appendChild(newOption);
-            dealSections.editStageSelect.value = formattedDeal.stage;
+            console.error('No deal object provided in selection event');
         }
-    }
+    },
     
-    if (dealSections.editDateInput) {
-        // Try to convert the date format if needed
-        try {
-            const dateParts = formattedDeal.closeDate.split('-');
-            if (dateParts.length === 3) {
-                // Assuming the format is already YYYY-MM-DD
-                dealSections.editDateInput.value = formattedDeal.closeDate;
-            } else {
-                // Try to convert from other formats
-                const date = new Date(formattedDeal.closeDate);
-                if (!isNaN(date.getTime())) {
-                    const year = date.getFullYear();
-                    const month = String(date.getMonth() + 1).padStart(2, '0');
-                    const day = String(date.getDate()).padStart(2, '0');
-                    dealSections.editDateInput.value = `${year}-${month}-${day}`;
-                }
-            }
-        } catch (e) {
-            console.error("Error formatting date:", e);
-            dealSections.editDateInput.value = "";
-        }
-    }
-}
-
-// Update the stage indicator color based on the stage
-function updateStageIndicator(stage) {
-    if (!dealSections.dealStageIndicator) return;
-    
-    // Remove all existing stage classes
-    dealSections.dealStageIndicator.className = 'deal-stage-indicator';
-    
-    // Add the appropriate class based on stage
-    const stageKey = stage.toLowerCase().replace(' ', '-');
-    if (stageKey === 'discovery') {
-        dealSections.dealStageIndicator.classList.add('discovery');
-    } else if (stageKey === 'qualification') {
-        dealSections.dealStageIndicator.classList.add('qualification');
-    } else if (stageKey === 'proposal') {
-        dealSections.dealStageIndicator.classList.add('proposal');
-    } else if (stageKey === 'negotiation') {
-        dealSections.dealStageIndicator.classList.add('negotiation');
-    } else if (stageKey === 'closed-won') {
-        dealSections.dealStageIndicator.classList.add('closed-won');
-    } else if (stageKey === 'closed-lost') {
-        dealSections.dealStageIndicator.classList.add('closed-lost');
-    }
-}
-
-// Show the edit deal form
-function showEditDealForm() {
-    const currentDeal = DealData.getCurrentDeal();
-    if (!currentDeal) return;
-    
-    // Hide view mode and show edit mode
-    dealSections.dealInfoView.classList.add('hidden');
-    dealSections.dealInfoEdit.classList.add('active');
-}
-
-// Save deal changes
-function saveDealChanges() {
-    const currentDeal = DealData.getCurrentDeal();
-    if (!currentDeal) return;
-    
-    // Get values from form
-    const updates = {
-        name: dealSections.editCompanyInput.value.trim(),
-        value: dealSections.editValueInput.value.trim(),
-        stage: dealSections.editStageSelect.value,
-        closeDate: dealSections.editDateInput.value
-    };
-    
-    // Validate
-    if (!updates.name || !updates.value) {
-        alert("Company name and value are required");
-        return;
-    }
-    
-    // Update deal info
-    if (DealData.updateDealInfo(currentDeal.id, updates)) {
-        // Also update stage if it changed
-        if (updates.stage !== currentDeal.stage) {
-            DealData.updateDealStage(currentDeal.id, updates.stage);
-        }
+    // Update UI to show deal is selected
+    updateDealUI(deal) {
+        if (!deal) return;
         
-        // Refresh UI with the updated deal
-        populateDealData(DealData.getCurrentDeal());
+        // Hide "no deal selected" messages
+        const noDealSelectedElements = document.querySelectorAll('.no-deal-selected');
+        noDealSelectedElements.forEach(el => el.classList.remove('active'));
         
-        // Hide edit form
-        cancelDealEdit();
-    }
-}
-
-// Cancel deal edit
-function cancelDealEdit() {
-    // Hide edit mode and show view mode
-    dealSections.dealInfoView.classList.remove('hidden');
-    dealSections.dealInfoEdit.classList.remove('active');
-}
-
-// Render contacts list
-function renderContacts(contacts) {
-    dealSections.contactsList.innerHTML = '';
-    
-    if (contacts.length === 0) {
-        const noContactsMsg = document.createElement('p');
-        noContactsMsg.className = 'no-contacts-message';
-        noContactsMsg.textContent = 'No contacts added';
-        dealSections.contactsList.appendChild(noContactsMsg);
-        return;
-    }
-    
-    contacts.forEach(contact => {
-        const contactEl = createContactElement(contact);
-        dealSections.contactsList.appendChild(contactEl);
-    });
-    
-    // Add "Add Contact" button
-    const addContactBtn = document.createElement('button');
-    addContactBtn.className = 'add-contact-btn';
-    addContactBtn.textContent = '+ Add Contact';
-    addContactBtn.addEventListener('click', showAddContactDialog);
-    dealSections.contactsList.appendChild(addContactBtn);
-}
-
-// Create contact element
-function createContactElement(contact) {
-    const contactEl = document.createElement('div');
-    contactEl.className = 'contact-item';
-    contactEl.dataset.id = contact.id;
-    
-    contactEl.innerHTML = `
-        <div class="contact-avatar">${contact.name.charAt(0)}</div>
-        <div class="contact-details">
-            <div class="contact-name">${contact.name}</div>
-            <div class="contact-title">${contact.title}</div>
-            <div class="contact-email">${contact.email}</div>
-        </div>
-        <button class="contact-action email-btn" title="Email Contact">✉</button>
-        <button class="contact-action remove-btn" title="Remove Contact">×</button>
-    `;
-    
-    // Add event listeners
-    const removeBtn = contactEl.querySelector('.remove-btn');
-    removeBtn.addEventListener('click', function(e) {
-        e.stopPropagation();
-        removeContact(contact.id);
-    });
-    
-    const emailBtn = contactEl.querySelector('.email-btn');
-    emailBtn.addEventListener('click', function(e) {
-        e.stopPropagation();
-        // In a real app, this would open an email composer
-        alert(`Composing email to ${contact.email}`);
-    });
-    
-    return contactEl;
-}
-
-// Remove a contact
-function removeContact(contactId) {
-    const currentDeal = DealData.getCurrentDeal();
-    if (!currentDeal) return;
-    
-    if (confirm('Are you sure you want to remove this contact?')) {
-        if (DealData.removeContact(currentDeal.id, contactId)) {
-            // Refresh contacts display
-            renderContacts(DealData.getCurrentDeal().contacts);
-        }
-    }
-}
-
-// Render notes
-function renderNotes(notes) {
-    dealSections.notesList.innerHTML = '';
-    
-    if (notes.length === 0) {
-        const noNotesMsg = document.createElement('p');
-        noNotesMsg.className = 'no-notes-message';
-        noNotesMsg.textContent = 'No notes added';
-        dealSections.notesList.appendChild(noNotesMsg);
-    } else {
-        notes.forEach(note => {
-            const noteEl = createNoteElement(note);
-            dealSections.notesList.appendChild(noteEl);
-        });
-    }
-    
-    // Add "Add Note" button
-    const addNoteBtn = document.createElement('button');
-    addNoteBtn.className = 'add-note-btn';
-    addNoteBtn.textContent = '+ Add Note';
-    addNoteBtn.addEventListener('click', showAddNoteDialog);
-    dealSections.notesList.appendChild(addNoteBtn);
-}
-
-// Create note element
-function createNoteElement(note) {
-    const noteEl = document.createElement('div');
-    noteEl.className = 'note-item';
-    noteEl.dataset.id = note.id;
-    
-    noteEl.innerHTML = `
-        <div class="note-text">${note.text}</div>
-        <div class="note-meta">
-            <div class="note-date">${note.date}</div>
-            <button class="note-remove-btn" title="Remove Note">×</button>
-        </div>
-    `;
-    
-    // Add event listener for remove button
-    const removeBtn = noteEl.querySelector('.note-remove-btn');
-    removeBtn.addEventListener('click', function(e) {
-        e.stopPropagation();
-        removeNote(note.id);
-    });
-    
-    return noteEl;
-}
-
-// Remove a note
-function removeNote(noteId) {
-    const currentDeal = DealData.getCurrentDeal();
-    if (!currentDeal) return;
-    
-    if (confirm('Are you sure you want to remove this note?')) {
-        if (DealData.removeNote(currentDeal.id, noteId)) {
-            // Refresh notes display
-            renderNotes(DealData.formatDealData(DealData.getCurrentDeal()).notes);
-        }
-    }
-}
-
-/**
- * Render files
- */
-function renderFiles(files) {
-    if (!dealSections.filesList) {
-        console.error("Files list element not found");
-        return;
-    }
-    
-    console.log("Rendering files:", files.length);
-    
-    dealSections.filesList.innerHTML = '';
-    
-    if (files.length === 0) {
-        const noFilesMsg = document.createElement('p');
-        noFilesMsg.className = 'no-files-message';
-        noFilesMsg.textContent = 'No files uploaded';
-        dealSections.filesList.appendChild(noFilesMsg);
-        return;
-    }
-    
-    files.forEach(file => {
-        const fileEl = createFileElement(file);
-        dealSections.filesList.appendChild(fileEl);
-    });
-}
-
-// Create file element
-function createFileElement(file) {
-    const fileEl = document.createElement('div');
-    fileEl.className = 'file-item';
-    fileEl.dataset.id = file.id;
-    
-    // Determine icon based on file type
-    let icon = '📄';
-    if (file.type === 'pdf' || file.name.endsWith('.pdf')) icon = '📕';
-    if (file.type === 'docx' || file.name.endsWith('.docx')) icon = '📘';
-    if (file.type === 'xlsx' || file.name.endsWith('.xlsx')) icon = '📗';
-    if (file.type === 'pptx' || file.name.endsWith('.pptx')) icon = '📙';
-    
-    fileEl.innerHTML = `
-        <div class="file-icon">${icon}</div>
-        <div class="file-details">
-            <div class="file-name">${file.name}</div>
-            <div class="file-info">${file.date} · ${file.size}</div>
-        </div>
-        <button class="file-action download-btn" title="Download File">↓</button>
-        <button class="file-action remove-btn" title="Remove File">×</button>
-    `;
-    
-    // Add event listeners
-    const downloadBtn = fileEl.querySelector('.download-btn');
-    downloadBtn.addEventListener('click', function(e) {
-        e.stopPropagation();
-        // In a real app, this would trigger a download
-        alert(`Downloading ${file.name}`);
-    });
-    
-    const removeBtn = fileEl.querySelector('.remove-btn');
-    removeBtn.addEventListener('click', function(e) {
-        e.stopPropagation();
-        removeFile(file.id);
-    });
-    
-    return fileEl;
-}
-
-// Remove a file
-function removeFile(fileId) {
-    const currentDeal = DealData.getCurrentDeal();
-    if (!currentDeal) return;
-    
-    if (confirm('Are you sure you want to remove this file?')) {
-        if (DealData.removeFile(currentDeal.id, fileId)) {
-            // Refresh files display
-            renderFiles(DealData.formatDealData(DealData.getCurrentDeal()).files);
-        }
-    }
-}
-
-/**
- * Render timeline
- */
-function renderTimeline(historyItems) {
-    if (!dealSections.timeline) {
-        console.error("Timeline element not found");
-        return;
-    }
-    
-    console.log("Rendering timeline:", historyItems.length);
-    
-    dealSections.timeline.innerHTML = '';
-    
-    if (historyItems.length === 0) {
-        const noHistoryMsg = document.createElement('p');
-        noHistoryMsg.className = 'no-history-message';
-        noHistoryMsg.textContent = 'No history available';
-        dealSections.timeline.appendChild(noHistoryMsg);
-        return;
-    }
-    
-    historyItems.forEach(item => {
-        const itemEl = createTimelineElement(item);
-        dealSections.timeline.appendChild(itemEl);
-    });
-}
-
-// Create timeline element
-function createTimelineElement(item) {
-    const timelineEl = document.createElement('div');
-    timelineEl.className = 'timeline-item';
-    timelineEl.dataset.id = item.id;
-    
-    timelineEl.innerHTML = `
-        <div class="timeline-point"></div>
-        <div class="timeline-content">
-            <div class="timeline-date">${item.date}</div>
-            <div class="timeline-title">${item.title}</div>
-            <div class="timeline-description">${item.description}</div>
-        </div>
-    `;
-    
-    return timelineEl;
-}
-
-// Show dialog to add a note
-function showAddNoteDialog() {
-    const currentDeal = DealData.getCurrentDeal();
-    if (!currentDeal) return;
-    
-    const noteText = prompt('Enter note text:');
-    if (noteText && noteText.trim() !== '') {
-        const newNote = DealData.addNote(currentDeal.id, noteText.trim());
-        if (newNote) {
-            // Refresh notes display
-            renderNotes(DealData.formatDealData(DealData.getCurrentDeal()).notes);
-        }
-    }
-}
-
-// Show dialog to add a contact
-function showAddContactDialog() {
-    const currentDeal = DealData.getCurrentDeal();
-    if (!currentDeal) return;
-    
-    const name = prompt('Contact name:');
-    if (!name || name.trim() === '') return;
-    
-    const title = prompt('Contact title:');
-    if (!title || title.trim() === '') return;
-    
-    const email = prompt('Contact email:');
-    if (!email || email.trim() === '') return;
-    
-    const newContact = DealData.addContact(currentDeal.id, name.trim(), title.trim(), email.trim());
-    if (newContact) {
-        // Refresh contacts display
-        renderContacts(DealData.getCurrentDeal().contacts);
-    }
-}
-
-// Handle file upload
-function handleFileUpload() {
-    const currentDeal = DealData.getCurrentDeal();
-    if (!currentDeal) return;
-    
-    // Create a temporary input element
-    const fileInput = document.createElement('input');
-    fileInput.type = 'file';
-    fileInput.multiple = true;
-    fileInput.accept = '.pdf,.docx,.txt,.xlsx,.pptx';
-    
-    // Trigger click to open file dialog
-    fileInput.click();
-    
-    // Handle file selection
-    fileInput.addEventListener('change', function() {
-        if (this.files.length > 0) {
-            console.log('Files selected:', this.files.length);
-            
-            // Process each file
-            Array.from(this.files).forEach(file => {
-                // Extract file extension
-                const fileName = file.name;
-                const fileType = fileName.split('.').pop().toLowerCase();
-                
-                // Format file size
-                let fileSize;
-                if (file.size < 1024) {
-                    fileSize = `${file.size} B`;
-                } else if (file.size < 1024 * 1024) {
-                    fileSize = `${Math.round(file.size / 1024)} KB`;
-                } else {
-                    fileSize = `${Math.round(file.size / (1024 * 1024) * 10) / 10} MB`;
-                }
-                
-                // Add file to deal
-                DealData.addFile(currentDeal.id, fileName, fileType, fileSize);
-            });
-            
-            // Refresh files display
-            renderFiles(DealData.formatDealData(DealData.getCurrentDeal()).files);
-        }
-    });
-}
-
-// Function to render deal overview content with performance optimizations
-function renderDealOverview(deal) {
-    if (!deal) return '';
-    
-    try {
-        // Basic deal summary - lightweight rendering
-        let html = `
-            <div class="deal-overview-container">
-                <div class="overview-section">
-                    <h3>Deal Summary</h3>
-                    <div class="deal-summary">
-                        <div class="deal-summary-item">
-                            <div class="label">Deal Value:</div>
-                            <div class="value">${deal.value || 'N/A'}</div>
-                        </div>
-                        <div class="deal-summary-item">
-                            <div class="label">Stage:</div>
-                            <div class="value">${deal.stage || 'N/A'}</div>
-                        </div>
-                        <div class="deal-summary-item">
-                            <div class="label">Close Date:</div>
-                            <div class="value">${deal.closeDate || 'N/A'}</div>
-                        </div>
-                        <div class="deal-summary-item">
-                            <div class="label">Industry:</div>
-                            <div class="value">${deal.industry || 'N/A'}</div>
-                        </div>
-                    </div>
-                </div>`;
-
-        // Company information - with safe checks
-        if (deal.company) {
-            html += `
-                <div class="overview-section">
-                    <h3>Company Information</h3>
-                    <div class="company-info">
-                        <div class="info-grid">`;
-                        
-            // Safely add company properties
-            const companyProps = [
-                { label: 'Company Size', value: deal.company.size },
-                { label: 'Annual Revenue', value: deal.company.revenue },
-                { label: 'Location', value: deal.company.location },
-                { label: 'Founded', value: deal.company.founded },
-                { label: 'Website', value: deal.company.website },
-                { label: 'Segment', value: deal.company.segment }
-            ];
-            
-            companyProps.forEach(prop => {
-                html += `
-                    <div class="info-item">
-                        <div class="label">${prop.label}:</div>
-                        <div class="value">${prop.value || 'N/A'}</div>
-                    </div>`;
-            });
-            
-            html += `</div>`;
-            
-            // Description if available
-            if (deal.company.description) {
-                html += `
-                    <div class="description-item">
-                        <div class="label">Description:</div>
-                        <div class="value">${deal.company.description}</div>
-                    </div>`;
-            }
-            
-            html += `</div></div>`;
-        }
+        // Show deal overview
+        const dealOverview = document.querySelector('.deal-overview');
+        if (dealOverview) dealOverview.classList.add('active');
         
-        // Add remaining sections with performance limits (max items)
+        // Update deal information
+        this.updateDealInfo(deal);
+    },
+    
+    // Update deal information in the UI
+    updateDealInfo(deal) {
+        if (!deal) return;
         
-        // Contacts section - limit to 10 contacts to prevent freezing on large datasets
-        const maxContacts = 10;
-        html += `
-            <div class="overview-section">
-                <h3>Key Contacts ${deal.contacts.length > maxContacts ? `(showing ${maxContacts} of ${deal.contacts.length})` : ''}</h3>
-                <div class="contacts-info">`;
-                
-        // Get a limited subset of contacts
-        const displayContacts = deal.contacts.slice(0, maxContacts);
+        // Company name
+        const companyNameEl = document.querySelector('.info-value.company-name');
+        if (companyNameEl) companyNameEl.textContent = deal.name || '-';
         
-        displayContacts.forEach(contact => {
-            html += `
-                <div class="contact-card">
-                    <div class="contact-header">
-                        <h4>${contact.name || 'No Name'}</h4>
-                        <div class="contact-title">${contact.title || 'No Title'}</div>
-                    </div>
-                    <div class="contact-details">
-                        <div class="contact-detail">
-                            <span class="icon">📧</span>
-                            <span>${contact.email || 'No Email'}</span>
-                        </div>`;
-                        
-            if (contact.phone) {
-                html += `
-                    <div class="contact-detail">
-                        <span class="icon">📱</span>
-                        <span>${contact.phone}</span>
-                    </div>`;
-            }
-            
-            if (contact.role) {
-                html += `
-                    <div class="contact-detail">
-                        <span class="icon">👤</span>
-                        <span>Role: ${contact.role}</span>
-                    </div>`;
-            }
-            
-            if (contact.influence) {
-                html += `
-                    <div class="contact-detail">
-                        <span class="icon">⚖️</span>
-                        <span>Influence: ${contact.influence}</span>
-                    </div>`;
-            }
-            
-            html += `</div>`;
-            
-            if (contact.notes) {
-                html += `
-                    <div class="contact-notes">
-                        <div class="notes-label">Notes:</div>
-                        <div class="notes-text">${contact.notes}</div>
-                    </div>`;
-            }
-            
-            html += `</div>`;
+        // Deal value
+        const dealValueEl = document.querySelector('.info-value.deal-value');
+        if (dealValueEl) dealValueEl.textContent = deal.value || '-';
+        
+        // Deal stage
+        const dealStageEl = document.querySelector('.deal-stage');
+        if (dealStageEl) dealStageEl.textContent = deal.stage || '-';
+        
+        // Close date
+        const closeDateEl = document.querySelector('.info-value.close-date');
+        if (closeDateEl) closeDateEl.textContent = deal.closeDate || '-';
+    },
+    
+    // Expand the widget and show deal content
+    expandWidget() {
+        if (!this.elements.widget) return;
+        
+        // Set widget to expanded-plus mode
+        this.elements.widget.className = 'widget-expanded-plus';
+        
+        // Ensure content pane is visible
+        this.ensureContentPaneVisible();
+    },
+    
+    // Ensure content pane is visible
+    ensureContentPaneVisible() {
+        // Set widget dimensions
+        Object.assign(this.elements.widget.style, {
+            width: '900px',
+            height: '600px',
+            display: 'flex',
+            flexDirection: 'column',
+            position: 'fixed',
+            bottom: '0',
+            right: '20px',
+            zIndex: '1000',
+            overflow: 'hidden',
+            borderRadius: '8px 8px 0 0',
+            boxShadow: '0 0 10px rgba(0, 0, 0, 0.1)'
         });
         
-        html += `</div></div>`;
+        // Ensure header styling
+        const header = this.elements.widget.querySelector('.widget-header');
+        if (header) {
+            Object.assign(header.style, {
+                backgroundColor: '#4285f4',
+                height: '48px',
+                width: '100%',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                padding: '0 15px',
+                color: 'white',
+                borderBottom: 'none',
+                boxSizing: 'border-box'
+            });
+            
+            // Ensure control buttons are visible
+            const controlButtons = header.querySelectorAll('.control-btn');
+            controlButtons.forEach(btn => {
+                Object.assign(btn.style, {
+                    visibility: 'visible',
+                    opacity: '1',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    background: 'rgba(255,255,255,0.2)',
+                    border: '1px solid rgba(255,255,255,0.4)',
+                    color: 'white',
+                    width: '30px',
+                    height: '30px'
+                });
+            });
+        }
         
-        // Close the main container
-        html += `</div>`;
+        // Ensure content container
+        const widgetContent = this.elements.widget.querySelector('.widget-content');
+        if (widgetContent) {
+            Object.assign(widgetContent.style, {
+                backgroundColor: '#ffffff',
+                height: 'calc(100% - 48px)',
+                overflow: 'hidden'
+            });
+        }
         
-        return html;
-    } catch (error) {
-        console.error('Error rendering deal overview:', error);
-        return '<div class="error-message">Error loading deal overview. Please try again.</div>';
-    }
-}
-
-// Function to render deal files content
-function renderDealFiles(deal) {
-    if (!deal || !deal.files || deal.files.length === 0) {
-        return '<div class="no-files-message">No files available for this deal.</div>';
-    }
-    
-    return `
-        <div class="files-container">
-            <div class="files-list">
-                ${deal.files.map(file => `
-                <div class="file-item">
-                    <div class="file-icon">${getFileIcon(file.type)}</div>
-                    <div class="file-details">
-                        <div class="file-name">${file.name}</div>
-                        <div class="file-meta">
-                            <span class="file-date">${file.date}</span> • 
-                            <span class="file-size">${file.size}</span>
-                            ${file.author ? ` • <span class="file-author">Added by ${file.author}</span>` : ''}
-                        </div>
-                        ${file.description ? `<div class="file-description">${file.description}</div>` : ''}
-                    </div>
-                </div>
-                `).join('')}
-            </div>
-        </div>
-    `;
-}
-
-// Helper function to get file icon based on type
-function getFileIcon(type) {
-    const icons = {
-        'pdf': '📄',
-        'docx': '📝',
-        'xlsx': '📊',
-        'pptx': '📑',
-        'txt': '📃',
-        'csv': '📋',
-        'zip': '🗜️',
-        'jpg': '🖼️',
-        'png': '🖼️'
-    };
-    
-    return icons[type] || '📄';
-}
-
-// Function to render deal notes content
-function renderDealNotes(deal) {
-    if (!deal || !deal.notes || deal.notes.length === 0) {
-        return '<div class="no-notes-message">No notes available for this deal.</div>';
-    }
-    
-    const sortedNotes = [...deal.notes].sort((a, b) => {
-        return new Date(b.date) - new Date(a.date); // Sort by date descending (newest first)
-    });
-    
-    return `
-        <div class="notes-container">
-            <div class="notes-list">
-                ${sortedNotes.map(note => `
-                <div class="note-item">
-                    <div class="note-header">
-                        <div class="note-date">${formatDateForDisplay(note.date)}</div>
-                        ${note.author ? `<div class="note-author">by ${note.author}</div>` : ''}
-                    </div>
-                    <div class="note-content">${note.text}</div>
-                </div>
-                `).join('')}
-            </div>
-        </div>
-    `;
-}
-
-// Function to render deal history content
-function renderDealHistory(deal) {
-    if (!deal || !deal.history || deal.history.length === 0) {
-        return '<div class="no-history-message">No history available for this deal.</div>';
-    }
-    
-    const sortedHistory = [...deal.history].sort((a, b) => {
-        return new Date(b.date) - new Date(a.date); // Sort by date descending (newest first)
-    });
-    
-    return `
-        <div class="history-container">
-            <div class="timeline">
-                ${sortedHistory.map(item => `
-                <div class="timeline-item">
-                    <div class="timeline-marker"></div>
-                    <div class="timeline-content">
-                        <div class="timeline-date">${formatDateForDisplay(item.date)}</div>
-                        <div class="timeline-title">${item.title}</div>
-                        <div class="timeline-description">${item.description}</div>
-                    </div>
-                </div>
-                `).join('')}
-            </div>
-        </div>
-    `;
-}
-
-// Helper function to format dates for display
-function formatDateForDisplay(dateString) {
-    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    const date = new Date(dateString);
-    
-    const day = date.getDate();
-    const month = months[date.getMonth()];
-    const year = date.getFullYear();
-    
-    return `${month} ${day}, ${year}`;
-}
-
-// Function to render deal tabs content with error protection
-function renderDealTabs(deal) {
-    if (!deal) return '';
-    
-    try {
-        // Inline rendering of tabs to avoid excessive function calls
-        const tabsHTML = `
-            <div class="deal-tabs">
-                <div class="tab active" data-tab="overview">Overview</div>
-                <div class="tab" data-tab="files">Files (${deal.files ? deal.files.length : 0})</div>
-                <div class="tab" data-tab="notes">Notes (${deal.notes ? deal.notes.length : 0})</div>
-                <div class="tab" data-tab="history">History (${deal.history ? deal.history.length : 0})</div>
-            </div>
-            <div class="tab-content">
-                <div class="tab-pane active" id="overview">
-                    <div class="loading-indicator">Loading overview...</div>
-                </div>
-                <div class="tab-pane" id="files">
-                    <div class="loading-indicator">Select tab to load files</div>
-                </div>
-                <div class="tab-pane" id="notes">
-                    <div class="loading-indicator">Select tab to load notes</div>
-                </div>
-                <div class="tab-pane" id="history">
-                    <div class="loading-indicator">Select tab to load history</div>
-                </div>
-            </div>
-        `;
+        // Ensure panes container
+        const panesContainer = this.elements.widget.querySelector('.panes-container');
+        if (panesContainer) {
+            Object.assign(panesContainer.style, {
+                display: 'flex',
+                height: '100%'
+            });
+        }
         
-        // Load the overview tab content after a brief delay to avoid freezing the UI
-        setTimeout(() => {
-            try {
-                const overviewTab = document.getElementById('overview');
-                if (overviewTab) {
-                    overviewTab.innerHTML = renderDealOverview(deal);
-                }
-            } catch (error) {
-                console.error('Error loading overview tab content:', error);
+        // Set up chat pane
+        if (this.elements.chatPane) {
+            Object.assign(this.elements.chatPane.style, {
+                width: 'calc(100% - 400px)',
+                height: '100%',
+                position: 'absolute',
+                left: '0',
+                top: '0',
+                display: 'block'
+            });
+        }
+        
+        // Set up content pane
+        if (this.elements.contentPane) {
+            Object.assign(this.elements.contentPane.style, {
+                width: '400px',
+                height: '100%',
+                position: 'absolute',
+                right: '0',
+                top: '0',
+                display: 'block',
+                visibility: 'visible',
+                opacity: '1',
+                background: '#fff',
+                borderLeft: '1px solid #e0e0e0',
+                overflowY: 'auto',
+                padding: '0',
+                boxSizing: 'border-box',
+                zIndex: '100'
+            });
+            
+            // Ensure content header styling
+            const contentHeader = this.elements.contentPane.querySelector('.deal-content-header');
+            if (contentHeader) {
+                Object.assign(contentHeader.style, {
+                    borderBottom: '1px solid #e0e0e0',
+                    padding: '15px 20px',
+                    backgroundColor: '#f8f9fa'
+                });
             }
-        }, 100);
+            
+            // Ensure tabs styling
+            const tabs = this.elements.contentPane.querySelector('.deal-content-tabs');
+            if (tabs) {
+                Object.assign(tabs.style, {
+                    display: 'flex',
+                    borderBottom: '1px solid #e0e0e0',
+                    backgroundColor: '#ffffff'
+                });
+            }
+            
+            // Ensure content body has padding
+            const contentBody = this.elements.contentPane.querySelector('.deal-content-body');
+            if (contentBody) {
+                Object.assign(contentBody.style, {
+                    padding: '20px'
+                });
+            }
+            
+            // Force a reflow to apply styles immediately
+            this.elements.contentPane.offsetHeight;
+        }
+    },
+    
+    // Render deal content
+    renderDealContent(deal) {
+        if (!this.elements.contentPane || !deal) return;
         
-        return tabsHTML;
-    } catch (error) {
-        console.error('Error rendering deal tabs:', error);
-        return '<div class="error-message">Error loading deal tabs. Please try again.</div>';
-    }
-}
-
-// Function to initialize deal content tab listeners with error handling
-function initDealTabListeners() {
-    // Set up deal tab switching with deferred loading to avoid performance issues
-    document.addEventListener('click', function(event) {
-        try {
-            if (event.target.classList.contains('deal-tab-btn')) {
-                const tabName = event.target.getAttribute('data-dealtab');
-                console.log('Deal tab clicked:', tabName);
-                
-                // Update active tab UI
-                document.querySelectorAll('.deal-tab-btn').forEach(tab => {
-                    tab.classList.remove('active');
-                });
-                event.target.classList.add('active');
-                
-                // Update content
-                document.querySelectorAll('.deal-tab-content').forEach(content => {
-                    content.classList.remove('active');
-                });
-                
-                const contentToShow = document.querySelector(`.${tabName}-tab`);
-                if (contentToShow) {
-                    contentToShow.classList.add('active');
+        // Ensure the content pane is visible
+        this.ensureContentPaneVisible();
+        
+        // Get the currently active tab
+        const activeTabName = this.getActiveTabName();
+        
+        // Render the tab content
+        this.renderTabContent(activeTabName, this.currentDeal);
+    },
+    
+    // Get the currently active tab name
+    getActiveTabName() {
+        const activeTab = document.querySelector('.deal-tab-btn.active');
+        return activeTab ? activeTab.getAttribute('data-dealtab') : 'overview';
+    },
+    
+    // Handle tab clicks
+    handleTabClick(tabElement) {
+        if (!this.currentDeal) return;
+        
+        // Update active states
+        const allTabs = document.querySelectorAll('.deal-tab-btn');
+        allTabs.forEach(tab => tab.classList.remove('active'));
+        tabElement.classList.add('active');
+        
+        // Get tab name
+        const tabName = tabElement.getAttribute('data-dealtab');
+        
+        // Update content
+        this.renderTabContent(tabName, this.currentDeal);
+    },
+    
+    // Render tab content
+    renderTabContent(tabName, deal) {
+        if (!deal) return;
+        
+        // Get the tab content container
+        const contentBody = document.querySelector('.deal-content-body');
+        if (!contentBody) return;
+        
+        // Update active states for tab panes
+        const allPanes = contentBody.querySelectorAll('.deal-tab-content');
+        allPanes.forEach(pane => pane.classList.remove('active'));
+        
+        // Activate the selected tab content
+        const selectedPane = contentBody.querySelector(`.${tabName}-tab`);
+        if (selectedPane) {
+            selectedPane.classList.add('active');
+        }
+        
+        // Update tab counts
+        this.updateTabCounts(deal);
+        
+        // Ensure content pane remains visible
+        this.ensureContentPaneVisible();
+    },
+    
+    // Update all tab counts
+    updateTabCounts(deal) {
+        if (!deal) return;
+        
+        // Files count
+        const filesTab = document.querySelector('[data-dealtab="files"]');
+        if (filesTab) {
+            filesTab.textContent = `Files (${deal.files?.length || 0})`;
+        }
+        
+        // Notes count
+        const notesTab = document.querySelector('[data-dealtab="notes"]');
+        if (notesTab) {
+            notesTab.textContent = `Notes (${deal.notes?.length || 0})`;
+        }
+        
+        // History count
+        const historyTab = document.querySelector('[data-dealtab="history"]');
+        if (historyTab) {
+            historyTab.textContent = `History (${deal.history?.length || 0})`;
+        }
+    },
+    
+    // Trigger file upload
+    triggerFileUpload() {
+        if (!this.currentDeal) {
+            console.error('No deal selected for file upload');
+            return;
+        }
+        
+        // Create a temporary input element
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.multiple = true;
+        input.accept = '.pdf,.docx,.txt,.xlsx,.pptx';
+        
+        // Add it to the DOM temporarily (this helps with some browser quirks)
+        document.body.appendChild(input);
+        
+        // Handle file selection
+        input.onchange = (e) => {
+            if (!e.target.files.length) {
+                document.body.removeChild(input);
+                return;
+            }
+            
+            // Process the files
+            this.handleFileUploaded(e.target.files);
+            
+            // Remove the input element
+            document.body.removeChild(input);
+            
+            // Make sure the deal content pane is visible
+            setTimeout(() => this.ensureContentPaneVisible(), 0);
+        };
+        
+        // Show file dialog
+        input.click();
+    },
+    
+    // Handle uploaded files
+    handleFileUploaded(files) {
+        if (!this.currentDeal || !files.length) return;
+        
+        // Make sure the content pane is visible before processing files
+        this.ensureContentPaneVisible();
+        
+        // Process each file
+        Array.from(files).forEach(file => {
+            const fileData = {
+                id: 'f' + Date.now() + Math.random().toString(36).substr(2, 9),
+                name: file.name,
+                type: file.name.split('.').pop().toLowerCase(),
+                size: this.formatFileSize(file.size),
+                date: new Date().toISOString().split('T')[0]
+            };
+            
+            // Add file to deal
+            if (!this.currentDeal.files) this.currentDeal.files = [];
+            this.currentDeal.files.push(fileData);
+            
+            // Add to history
+            if (!this.currentDeal.history) this.currentDeal.history = [];
+            this.currentDeal.history.push({
+                id: 'h' + Date.now(),
+                title: 'File uploaded',
+                date: new Date().toISOString().split('T')[0],
+                description: `File "${file.name}" was uploaded to the deal`
+            });
+        });
+        
+        // Update all tab counts
+        this.updateTabCounts(this.currentDeal);
+        
+        // Refresh content if on files tab
+        const activeTabName = this.getActiveTabName();
+        if (activeTabName === 'files') {
+            // Update files list
+            const filesPane = document.querySelector('.deal-tab-content.files-tab');
+            if (filesPane) {
+                const filesList = filesPane.querySelector('.files-list');
+                if (filesList && this.currentDeal.files?.length > 0) {
+                    // Remove "no files" message if it exists
+                    const noFilesMsg = filesPane.querySelector('.no-files-message');
+                    if (noFilesMsg) noFilesMsg.remove();
                     
-                    // Lazy load content when tab is clicked to improve performance
-                    if (tabName !== 'overview' && dealStore && dealStore.currentDeal) {
-                        const deal = dealStore.deals[dealStore.currentDeal];
-                        if (deal) {
-                            // Show loading indicator
-                            contentToShow.innerHTML = '<div class="loading-indicator">Loading content...</div>';
-                            
-                            // Load content after a slight delay to avoid freezing the UI
-                            setTimeout(() => {
-                                try {
-                                    switch (tabName) {
-                                        case 'files':
-                                            contentToShow.innerHTML = renderDealFiles(deal);
-                                            break;
-                                        case 'notes':
-                                            contentToShow.innerHTML = renderDealNotes(deal);
-                                            break;
-                                        case 'history':
-                                            contentToShow.innerHTML = renderDealHistory(deal);
-                                            break;
-                                    }
-                                } catch (error) {
-                                    console.error(`Error loading ${tabName} tab content:`, error);
-                                    contentToShow.innerHTML = `<div class="error-message">Error loading ${tabName}. Please try again.</div>`;
-                                }
-                            }, 50);
-                        }
-                    }
+                    // Update the files list
+                    this.renderFiles();
                 }
             }
-        } catch (error) {
-            console.error('Error in tab click handler:', error);
         }
-    });
+        
+        // Final check to ensure content pane is visible
+        setTimeout(() => this.ensureContentPaneVisible(), 100);
+        
+        // Specifically ensure widget controls are visible
+        setTimeout(() => {
+            const header = this.elements.widget.querySelector('.widget-header');
+            if (header) {
+                const controlButtons = header.querySelectorAll('.control-btn');
+                controlButtons.forEach(btn => {
+                    Object.assign(btn.style, {
+                        visibility: 'visible !important',
+                        opacity: '1 !important',
+                        display: 'flex !important'
+                    });
+                });
+            }
+        }, 200);
+    },
     
-    console.log('Deal tab listeners initialized');
-}
+    // Helper: Format file size
+    formatFileSize(bytes) {
+        if (bytes < 1024) return bytes + ' B';
+        if (bytes < 1024 * 1024) return Math.round(bytes / 1024) + ' KB';
+        return Math.round((bytes / (1024 * 1024)) * 10) / 10 + ' MB';
+    },
+    
+    // Render files in the files tab
+    renderFiles() {
+        if (!this.currentDeal || !this.currentDeal.files?.length) return;
+        
+        const filesPane = document.querySelector('.deal-tab-content.files-tab');
+        if (!filesPane) return;
+        
+        const filesList = filesPane.querySelector('.files-list');
+        if (!filesList) return;
+        
+        // Update the files list HTML
+        const filesHTML = this.currentDeal.files.map(file => {
+            return `
+                <div class="file-item">
+                    <div class="file-icon">📄</div>
+                    <div class="file-info">
+                        <div class="file-name">${file.name}</div>
+                        <div class="file-meta">${file.size} • ${file.date}</div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+        
+        filesList.innerHTML = filesHTML;
+    },
+    
+    // Render content for special dropdown deals
+    renderSpecialDealContent(deal) {
+        if (!deal) return;
+        
+        console.log('Rendering special deal content for:', deal.name);
+        
+        // Ensure content pane is visible
+        this.ensureContentPaneVisible();
+        
+        // Hide "no deal selected" messages
+        const noDealSelectedElements = document.querySelectorAll('.no-deal-selected');
+        noDealSelectedElements.forEach(el => el.classList.remove('active'));
+        
+        // Show deal overview
+        const dealOverview = document.querySelector('.deal-overview');
+        if (dealOverview) dealOverview.classList.add('active');
+        
+        // Company name
+        const companyNameEl = document.querySelector('.info-value.company-name');
+        if (companyNameEl) companyNameEl.textContent = deal.name || '-';
+        
+        // Deal value
+        const dealValueEl = document.querySelector('.info-value.deal-value');
+        if (dealValueEl) dealValueEl.textContent = deal.value || '-';
+        
+        // Deal stage
+        const dealStageEl = document.querySelector('.deal-stage');
+        if (dealStageEl) dealStageEl.textContent = deal.stage || '-';
+        
+        // Close date
+        const closeDateEl = document.querySelector('.info-value.close-date');
+        if (closeDateEl) closeDateEl.textContent = deal.closeDate || '-';
+        
+        // Ensure active tab content is displayed
+        const activeTabName = this.getActiveTabName();
+        this.renderTabContent(activeTabName, deal);
+        
+        // Update the active deal name in the chat widget
+        const activeDealName = document.querySelector('.active-deal-name');
+        if (activeDealName) activeDealName.textContent = deal.name;
+        
+        // Update deal stage pill
+        const stagePill = document.querySelector('.deal-stage-pill');
+        if (stagePill) stagePill.textContent = deal.stage;
+        
+        // Show active deal state
+        const noDealState = document.querySelector('.no-deal-state');
+        if (noDealState) noDealState.classList.remove('active');
+        
+        const activeDealState = document.querySelector('.active-deal-state');
+        if (activeDealState) activeDealState.classList.add('active');
+        
+        console.log('Special deal content rendered for:', deal.name);
+    }
+};
 
-// Export the functions to window for global access
-window.dealContent = {
-    renderDealTabs,
-    renderDealOverview,
-    renderDealFiles,
-    renderDealNotes,
-    renderDealHistory,
-    initDealTabListeners
-}; 
+// Initialize the module
+document.addEventListener('DOMContentLoaded', () => DealContent.init());
 
-// CRITICAL: Also expose critical functions directly on window
-window.renderDealOverview = renderDealOverview;
-window.renderDealFiles = renderDealFiles;
-window.renderDealHistory = renderDealHistory;
-window.renderDealNotes = renderDealNotes;
-window.initDealTabListeners = initDealTabListeners;
-
-console.log('dealContent.js: Functions successfully exposed to window object'); 
+// Export for global access
+window.DealContent = DealContent; 

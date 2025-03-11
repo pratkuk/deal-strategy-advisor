@@ -4,13 +4,19 @@
  */
 
 (function() {
-    console.log("🔄 Deal Test Controls script loaded");
+    console.log("🔄 Deal Test Controls script loaded - DISABLED");
+    
+    // Disable test controls entirely
+    return;
     
     // Set a flag to track if we've successfully replaced the buttons
     window.dealTestControlsApplied = false;
     
     // Function to initialize test controls with real deals
     function initializeDealTestControls() {
+        // Disable test controls
+        return;
+        
         // If we've already applied the changes, don't do it again
         if (window.dealTestControlsApplied) {
             console.log("Deal test controls already applied, skipping");

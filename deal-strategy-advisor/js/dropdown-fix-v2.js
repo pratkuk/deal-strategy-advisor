@@ -340,9 +340,9 @@
         dropdown.className = 'dropdown-content';
         
         const options = [
-            { id: 'agent', text: 'Chat', active: true },
-            { id: 'ask', text: 'Composer', active: false },
-            { id: 'tasks', text: 'Coaching', active: false }
+            { id: 'agent', text: 'Assistant', active: false },
+            { id: 'ask', text: 'Strategy', active: true },
+            { id: 'tasks', text: 'Ask', active: false }
         ];
         
         options.forEach(option => {
@@ -373,22 +373,28 @@
         dropdown.setAttribute('data-fixed-upward', 'true'); // Mark as fixed
         
         // Get real deals from dealStore if available
-        let deals = [
-            { id: 'deal-1', name: 'Acme Corporation (Fallback)', value: '$52,500' },
-            { id: 'deal-2', name: 'TechStar Inc (Fallback)', value: '$78,500' },
-            { id: 'deal-3', name: 'Global Systems (Fallback)', value: '$124,000' }
-        ];
+        let deals = [];
         
         if (window.dealStore && window.dealStore.deals) {
-            deals = [];
             Object.keys(window.dealStore.deals).forEach(dealId => {
                 const deal = window.dealStore.deals[dealId];
-                deals.push({
-                    id: dealId,
-                    name: deal.name,
-                    value: deal.value
-                });
+                if (deal && deal.name && deal.value) {  // Only add valid deals
+                    deals.push({
+                        id: dealId,
+                        name: deal.name,
+                        value: deal.value
+                    });
+                }
             });
+        }
+        
+        // If no deals found in dealStore, use fallback deals
+        if (deals.length === 0) {
+            deals = [
+                { id: 'deal-1', name: 'Acme Corporation', value: '$52,500' },
+                { id: 'deal-2', name: 'TechStar Inc', value: '$78,500' },
+                { id: 'deal-3', name: 'Global Systems', value: '$124,000' }
+            ];
         }
         
         deals.forEach(deal => {
@@ -396,6 +402,22 @@
             link.href = '#';
             link.setAttribute('data-deal', deal.id);
             link.textContent = `${deal.name} - ${deal.value}`;
+            
+            // Add click handler directly to the link
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                if (typeof window.selectDeal === 'function') {
+                    window.selectDeal(deal.id);
+                } else {
+                    handleDealSelection(deal.id, link.textContent);
+                }
+                
+                // Close dropdown
+                dropdown.classList.remove('show');
+                dropdown.style.display = 'none';
+            });
             
             link.style.padding = '10px 16px';
             link.style.display = 'block';
@@ -473,8 +495,8 @@
     
     // Add debug UI controls
     function addDebugControls() {
-        const existingDebug = document.querySelector('#dropdown-debug-controls');
-        if (existingDebug) return;
+        // Disable debug controls
+        return;
         
         const debugControls = document.createElement('div');
         debugControls.id = 'dropdown-debug-controls';

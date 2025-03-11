@@ -8,7 +8,8 @@
     document.addEventListener('DOMContentLoaded', function() {
         console.log('📌 Workspace-fix direct handlers loaded');
         initWorkspaceTabs();
-        addWorkspaceTabDiagnosticButton();
+        // Disabled workspace controls
+        // addWorkspaceTabDiagnosticButton();
     });
 
     // Initialize workspace tabs directly
@@ -66,7 +67,9 @@
     
     // Add diagnostic button to test controls
     function addWorkspaceTabDiagnosticButton() {
-        // Function to add the button once Test Controls are found
+        // Disabled workspace controls
+        return;
+        
         function addButton() {
             // Try multiple possible selectors for test controls
             const testSelectors = [

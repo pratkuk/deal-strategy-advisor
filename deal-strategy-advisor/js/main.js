@@ -1,36 +1,24 @@
-// main.js - Main application initialization
+// Main application initialization
 
-// Import modules
-import workspaceModule from './workspace/workspace.js';
-import widgetModule from './widget/widget.js';
-import dealsModule from './data/deals.js';
-import * as DealContent from './dealContent.js';
-import * as ChatWidget from './chatWidget.js';
-
-// Application initialization
 const app = {
-    // Initialize the application
     initialize: function() {
-        // Initialize modules in order
-        this.initWorkspace();
-        this.initWidget();
-        this.setupGlobalEventListeners();
+        console.log('Initializing application...');
         
+        // Initialize chat widget
+        if (window.chatWidget) {
+            console.log('Found chat widget, initializing...');
+            window.chatWidget.init();
+        } else {
+            console.error('Chat widget not found!');
+        }
+        
+        this.setupGlobalEventListeners();
         console.log('Application initialized');
     },
     
-    // Initialize the workspace
-    initWorkspace: function() {
-        workspaceModule.initialize();
-    },
-    
-    // Initialize the widget
-    initWidget: function() {
-        widgetModule.initialize();
-    },
-    
-    // Set up global event listeners
     setupGlobalEventListeners: function() {
+        console.log('Setting up global event listeners...');
+        
         // Handle window resize
         window.addEventListener('resize', () => {
             this.handleResize();
@@ -38,9 +26,7 @@ const app = {
         
         // Handle key commands
         document.addEventListener('keydown', (e) => {
-            // Escape key to close modals
             if (e.key === 'Escape') {
-                // Close any open modals or context menus
                 const contextMenu = document.getElementById('contextMenu');
                 if (contextMenu && contextMenu.classList.contains('visible')) {
                     const contextBackdrop = document.getElementById('contextModalBackdrop');
@@ -51,21 +37,17 @@ const app = {
                 }
             }
         });
+        
+        console.log('Global event listeners set up');
     },
     
-    // Handle window resize
     handleResize: function() {
-        // Adjust widget position if needed
-        if (typeof widgetModule !== 'undefined') {
-            const widget = document.getElementById('deal-chat-widget');
-            if (widget) {
-                const rect = widget.getBoundingClientRect();
-                if (rect.right > window.innerWidth || rect.bottom > window.innerHeight) {
-                    widgetModule.updateWidgetPosition(
-                        Math.min(rect.left, window.innerWidth - widget.offsetWidth),
-                        Math.min(rect.top, window.innerHeight - widget.offsetHeight)
-                    );
-                }
+        const widget = document.getElementById('deal-chat-widget');
+        if (widget) {
+            const rect = widget.getBoundingClientRect();
+            if (rect.right > window.innerWidth || rect.bottom > window.innerHeight) {
+                widget.style.left = Math.min(rect.left, window.innerWidth - widget.offsetWidth) + 'px';
+                widget.style.top = Math.min(rect.top, window.innerHeight - widget.offsetHeight) + 'px';
             }
         }
     }
@@ -73,27 +55,18 @@ const app = {
 
 // Initialize the application when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
+    console.log('DOM loaded, initializing app...');
     app.initialize();
     
-    console.log('Main script loaded');
-    
-    // Initialize deal content UI module
-    DealContent.init();
-    
-    // Initialize chat widget module
-    ChatWidget.init();
-    
-    // Deal selection dropdown functionality
+    // Set up deal-related functionality
     setupDealDropdown();
-    
-    // Set up clear deal button
     setupClearDealButton();
     
-    // Add expand-plus button handler
-    setupExpandPlusButton();
+    // Make selectDeal globally available
+    window.selectDeal = selectDeal;
 });
 
-// Expose to window for legacy compatibility
+// Make app globally available
 window.app = app;
 
 // Setup deal dropdown functionality
@@ -133,13 +106,25 @@ function setupDealDropdown() {
                 const dealId = this.getAttribute('data-deal');
                 console.log('Deal selected:', dealId);
                 
-                // Simulate deal selection
-                document.dispatchEvent(new CustomEvent('dealSelected', { 
-                    detail: { 
-                        dealId: dealId,
-                        dealName: this.textContent
-                    } 
-                }));
+                // Get the actual deal object from dealStore
+                if (window.dealStore && window.dealStore.deals && window.dealStore.deals[dealId]) {
+                    const deal = window.dealStore.deals[dealId];
+                    
+                    // Set as current deal
+                    window.dealStore.currentDeal = dealId;
+                    
+                    // Dispatch deal selected event with the full deal object
+                    document.dispatchEvent(new CustomEvent('dealSelected', { 
+                        detail: { 
+                            dealId: dealId,
+                            deal: deal
+                        } 
+                    }));
+                    
+                    console.log('Deal object dispatched:', deal);
+                } else {
+                    console.error('Deal not found in dealStore:', dealId);
+                }
                 
                 // Show the deal content by triggering expand-plus if not already in that mode
                 const widget = document.getElementById('deal-chat-widget');
@@ -288,14 +273,25 @@ function initDealContent() {
 // Function to select a deal and render its content
 function selectDeal(dealId) {
     try {
-        const deal = dealStore.deals[dealId];
+        console.log('selectDeal called with dealId:', dealId);
+        
+        // Ensure dealStore exists
+        if (!window.dealStore) {
+            console.error('dealStore not initialized');
+            window.dealStore = { deals: {}, currentDeal: null };
+        }
+        
+        // Get the deal from dealStore
+        const deal = window.dealStore.deals[dealId];
         if (!deal) {
-            console.error('Deal not found:', dealId);
+            console.error('Deal not found in dealStore:', dealId);
             return;
         }
         
+        console.log('Found deal:', deal);
+        
         // Update current deal in the store
-        dealStore.currentDeal = dealId;
+        window.dealStore.currentDeal = dealId;
         
         // Update deal context bar
         try {
@@ -346,11 +342,75 @@ function updateDealContextBar(deal) {
 
 // Function to render deal content
 function renderDealContent(deal) {
-    const dealContentPane = document.querySelector('.deal-content-pane');
-    if (!dealContentPane) return;
+    console.log('Rendering deal content for:', deal);
     
-    // Use our dealContent module to render the tabs and content
-    dealContentPane.innerHTML = window.dealContent.renderDealTabs(deal);
+    // Use the DealContent module if available
+    if (window.DealContent) {
+        console.log('Using DealContent module to render deal');
+        
+        // Make sure the deal content pane is visible
+        const dealContentPane = document.querySelector('.deal-content-pane');
+        if (dealContentPane) {
+            dealContentPane.style.display = 'block';
+            dealContentPane.style.visibility = 'visible';
+            dealContentPane.style.opacity = '1';
+        }
+        
+        // Trigger a manual deal selected event for DealContent to handle
+        const event = {
+            detail: {
+                dealId: deal.id,
+                deal: deal
+            }
+        };
+        
+        // Call the handler directly if accessible
+        if (typeof window.DealContent.handleDealSelected === 'function') {
+            window.DealContent.handleDealSelected(event);
+        } else {
+            console.error('DealContent.handleDealSelected is not a function');
+        }
+        
+        return;
+    }
+    
+    // Fallback rendering if DealContent module is not available
+    const dealContentPane = document.querySelector('.deal-content-pane');
+    if (!dealContentPane) {
+        console.error('Deal content pane not found');
+        return;
+    }
+    
+    // Update the overview section
+    try {
+        // Hide "no deal selected" message
+        const noDealSelectedElements = document.querySelectorAll('.no-deal-selected');
+        noDealSelectedElements.forEach(el => el.classList.remove('active'));
+        
+        // Show deal overview
+        const dealOverview = document.querySelector('.deal-overview');
+        if (dealOverview) dealOverview.classList.add('active');
+        
+        // Update company name
+        const companyNameEl = document.querySelector('.info-value.company-name');
+        if (companyNameEl) companyNameEl.textContent = deal.name || '-';
+        
+        // Update deal value
+        const dealValueEl = document.querySelector('.info-value.deal-value');
+        if (dealValueEl) dealValueEl.textContent = deal.value || '-';
+        
+        // Update deal stage
+        const dealStageEl = document.querySelector('.deal-stage');
+        if (dealStageEl) dealStageEl.textContent = deal.stage || '-';
+        
+        // Update close date
+        const closeDateEl = document.querySelector('.info-value.close-date');
+        if (closeDateEl) closeDateEl.textContent = deal.closeDate || '-';
+    } catch (error) {
+        console.error('Error updating deal info:', error);
+    }
+    
+    console.log('Deal content rendered successfully');
 }
 
 // Function to update deal selection in dropdown

@@ -4,7 +4,7 @@
  */
 
 // In-memory storage for demo purposes (would be replaced with API calls)
-const dealStore = {
+window.dealStore = {
     deals: {
         'deal-1': {
             id: 'deal-1',
@@ -96,17 +96,17 @@ const dealStore = {
             id: 'deal-2',
             name: 'TechStar Inc',
             value: '$78,500',
-            stage: 'Negotiation',
-            closeDate: '2024-04-30',
-            industry: 'Software & Technology',
+            stage: 'Discovery',
+            closeDate: '2024-06-30',
+            industry: 'Technology',
             company: {
-                size: '120 employees',
-                revenue: '$28M annual',
-                location: 'Austin, TX',
-                founded: '2017',
+                size: '100-250 employees',
+                revenue: '$25M annual',
+                location: 'San Francisco, CA',
+                founded: '2015',
                 website: 'techstarinc.com',
-                segment: 'Growth Tech',
-                description: 'Fast-growing SaaS company providing customer engagement tools for e-commerce businesses.'
+                segment: 'Growth',
+                description: 'Innovative SaaS platform provider focusing on AI-driven analytics solutions.'
             },
             product: {
                 name: 'CRM Enterprise Suite',
@@ -188,17 +188,17 @@ const dealStore = {
             id: 'deal-3',
             name: 'Global Systems',
             value: '$124,000',
-            stage: 'Discovery',
-            closeDate: '2024-07-31',
+            stage: 'Negotiation',
+            closeDate: '2024-04-15',
             industry: 'Financial Services',
             company: {
-                size: '2,500+ employees',
-                revenue: '$1.8B annual',
-                location: 'Multiple (HQ: New York, NY)',
-                founded: '1992',
+                size: '500+ employees',
+                revenue: '$100M annual',
+                location: 'New York, NY',
+                founded: '1990',
                 website: 'globalsystems.com',
                 segment: 'Enterprise',
-                description: 'Global financial services provider specializing in payment processing and risk management solutions for international businesses.'
+                description: 'Global financial technology provider specializing in trading and risk management solutions.'
             },
             product: {
                 name: 'Security Compliance Platform',
@@ -276,49 +276,70 @@ const dealStore = {
     currentDeal: null
 };
 
-// CRITICAL: Ensure dealStore is available globally
-if (typeof window !== 'undefined') {
-    window.dealStore = dealStore;
-    console.log('dealStore successfully attached to window with ' + Object.keys(dealStore.deals).length + ' deals');
+// Create mapping between dropdown values and actual deals
+window.dealDropdownMap = {
+    "Acme Corp - $50,000": "deal-1",
+    "TechStar Inc - $75,000": "deal-2", 
+    "Global Systems - $120,000": "deal-3"
+};
+
+// Function to ensure dealStore is properly initialized
+function ensureDealStore() {
+    console.log('Ensuring dealStore is initialized...');
     
-    // Log the actual deals for debugging
-    console.log('Available deals:');
-    Object.keys(dealStore.deals).forEach(dealId => {
-        const deal = dealStore.deals[dealId];
-        console.log(`- ${deal.name} (${deal.value}, ${deal.stage})`);
-    });
-}
-
-// Get all deals
-export function getAllDeals() {
-    return Object.values(dealStore.deals);
-}
-
-// Get a specific deal by ID
-export function getDeal(dealId) {
-    return dealStore.deals[dealId];
-}
-
-// Set the current active deal
-export function setCurrentDeal(dealId) {
-    const deal = getDeal(dealId);
-    if (deal) {
-        dealStore.currentDeal = dealId;
-        return deal;
+    // Check if deals exist in dealStore
+    if (!window.dealStore || !window.dealStore.deals || Object.keys(window.dealStore.deals).length === 0) {
+        console.error('Deal store missing or empty, attempting to fix...');
+        
+        // Recreate dealStore with the correct structure if needed
+        if (typeof window.originalDealStore !== 'undefined') {
+            window.dealStore = window.originalDealStore;
+            console.log('Restored dealStore from originalDealStore backup');
+        }
     }
-    return null;
+
+    console.log('DealStore deal count:', Object.keys(window.dealStore?.deals || {}).length);
 }
 
-// Get the current active deal
-export function getCurrentDeal() {
-    if (!dealStore.currentDeal) return null;
-    return getDeal(dealStore.currentDeal);
-}
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', function() {
+    // Ensure dealStore is properly set up
+    ensureDealStore();
+    
+    // Log the available deals for debugging
+    console.log('Available deals in store:', window.dealStore?.deals);
+});
 
-// Clear the current deal
-export function clearCurrentDeal() {
-    dealStore.currentDeal = null;
-}
+// Backup original dealStore in case it gets corrupted
+setTimeout(function() {
+    if (window.dealStore && window.dealStore.deals) {
+        window.originalDealStore = JSON.parse(JSON.stringify(window.dealStore));
+        console.log('Created backup of dealStore');
+    }
+}, 1000);
+
+// Make functions globally available
+window.dealData = {
+    getAllDeals: function() {
+        return Object.values(window.dealStore.deals);
+    },
+    
+    getDeal: function(dealId) {
+        return window.dealStore.deals[dealId];
+    },
+    
+    setCurrentDeal: function(dealId) {
+        window.dealStore.currentDeal = dealId;
+    },
+    
+    getCurrentDeal: function() {
+        return window.dealStore.currentDeal ? window.dealStore.deals[window.dealStore.currentDeal] : null;
+    },
+    
+    clearCurrentDeal: function() {
+        window.dealStore.currentDeal = null;
+    }
+};
 
 // NOTES MANAGEMENT
 // Add a note to a deal

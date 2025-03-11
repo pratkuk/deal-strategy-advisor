@@ -237,6 +237,9 @@ function setupGlobalHandler() {
 
 // Add debug info to help identify dropdown status
 function addDebugInfo() {
+    // Disable debug info
+    return;
+    
     const debugControls = document.createElement('div');
     debugControls.style.position = 'fixed';
     debugControls.style.bottom = '10px';

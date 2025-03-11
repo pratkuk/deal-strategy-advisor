@@ -107,62 +107,67 @@
 
 /* Select Deal button */
 .select-deal-btn {
-    cursor: pointer !important;
-    position: relative !important;
-    z-index: 1000 !important;
-    background-color: #4285f4 !important;
-    color: white !important;
-    border: none !important;
-    border-radius: 4px !important;
-    padding: 8px 12px !important;
-    font-size: 14px !important;
+    background-color: #4285f4;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 8px 12px;
+    cursor: pointer;
+    position: relative;
+    z-index: 1000;
 }
 
-/* DEAL dropdown - ALSO opens UPWARD (changed from downward) */
-.no-deal-state .dropdown-content {
-    display: none !important;
-    position: absolute !important;
-    background-color: #fff !important;
-    min-width: 220px !important;
-    max-width: 280px !important;
-    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2) !important;
-    border-radius: 4px !important;
-    z-index: 9999 !important;
-    overflow: hidden !important;
-    bottom: 100% !important; /* Changed from top to bottom - Position ABOVE the button */
-    left: 0 !important;
-    margin-bottom: 6px !important; /* Changed from margin-top - Space between button and dropdown */
-    border: 1px solid rgba(0,0,0,0.1) !important;
+.select-deal-btn:hover {
+    background-color: #357abd;
 }
 
-/* When deal dropdown is visible */
-.no-deal-state .dropdown-content.show {
-    display: block !important;
-    animation: fadeInUp 0.15s ease-out !important; /* Changed from fadeInDown to fadeInUp */
+.select-deal-dropdown {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background-color: white;
+    min-width: 220px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    border-radius: 4px;
+    border: 1px solid rgba(0,0,0,0.1);
+    z-index: 1500;
 }
 
-/* Deal dropdown items */
-.no-deal-state .dropdown-content a {
-    color: #333 !important;
-    padding: 10px 16px !important;
-    text-decoration: none !important;
-    display: block !important;
-    font-size: 14px !important;
-    border-bottom: 1px solid rgba(0,0,0,0.05) !important;
-    white-space: nowrap !important;
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
+.select-deal-dropdown a {
+    color: #333;
+    padding: 10px 16px;
+    text-decoration: none;
+    display: block;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
 }
 
-/* Hover effect for deal items */
-.no-deal-state .dropdown-content a:hover {
-    background-color: #f5f5f5 !important;
+.select-deal-dropdown a:hover {
+    background-color: #f5f5f5;
 }
 
-/* Animation for deal dropdown - now also moving up (was moving down) */
-@keyframes fadeInDown {
-    from { opacity: 0; transform: translateY(-5px); }
-    to { opacity: 1; transform: translateY(0); }
+.select-deal-dropdown a:last-child {
+    border-bottom: none;
+}
+
+.deal-selector {
+    position: relative;
+}
+
+/* Ensure dropdowns appear above other content */
+.dropdown-content {
+    z-index: 1500;
+}
+
+/* Position the dropdown container properly */
+.deal-context-bar .dropdown {
+    position: relative;
+    z-index: 1000;
+}
+
+/* Ensure the deal details pane doesn't overlap dropdowns */
+.deal-details-pane {
+    z-index: 100;
 }
 
 /* ===== CRITICAL FIXES ===== */
@@ -175,4 +180,23 @@
 /* Force high z-index for ALL dropdowns when shown */
 .dropdown-content.show {
     z-index: 9999 !important;
+}
+
+.deal-context-bar .dropdown {
+    position: relative;
+    z-index: 1000;
+}
+
+.deal-details-pane {
+    z-index: 100;
+}
+
+/* Ensure dropdowns are above other content */
+.mode-selector .dropdown-content,
+.agent-selector .dropdown-content {
+    z-index: 1500;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    background: white;
+    border-radius: 4px;
+    border: 1px solid #e0e0e0;
 } 

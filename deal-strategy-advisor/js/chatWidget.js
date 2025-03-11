@@ -7,34 +7,94 @@ const chatWidget = {
     messages: [],
     currentDeal: null,
     contextItems: [],
+    uploadedFiles: null,
+    
+    // Add mode switching functionality
+    modes: {
+        CHAT: 'Assistant',
+        COMPOSER: 'Strategy',
+        COACHING: 'Ask'
+    },
+
+    currentMode: 'Strategy',
     
     init: function() {
         console.log('Initializing chat widget...');
+        
+        // Initialize dealStore if it doesn't exist
+        if (!window.dealStore) {
+            console.log('Initializing dealStore in init...');
+            window.dealStore = {
+                deals: {},
+                currentDeal: null
+            };
+        }
+        
         this.setupEventListeners();
         this.loadInitialMessages();
         this.setupDealIntegration();
+        this.initializeModeSelector();
+        
+        console.log('Chat widget initialization complete');
     },
     
     setupEventListeners: function() {
+        console.log('Setting up event listeners...');
+        
         // Send button click event
-        const sendButton = document.querySelector('.send-btn');
+        const sendButton = document.querySelector('#deal-chat-widget .send-btn');
         if (sendButton) {
+            console.log('Found send button');
             sendButton.addEventListener('click', () => this.sendMessage());
+        } else {
+            console.log('Send button not found');
         }
         
         // Input keypress event (for Enter key)
-        const chatInput = document.querySelector('.chat-input');
+        const chatInput = document.querySelector('#deal-chat-widget .chat-input');
         if (chatInput) {
+            console.log('Found chat input');
             chatInput.addEventListener('keypress', (e) => {
                 if (e.key === 'Enter' && !e.shiftKey) {
                     e.preventDefault();
                     this.sendMessage();
                 }
             });
+        } else {
+            console.log('Chat input not found');
+        }
+        
+        // File upload button event
+        const fileUploadButton = document.querySelector('#deal-chat-widget .file-upload-btn-chat');
+        const fileInput = document.querySelector('#deal-chat-widget #chat-file-input');
+        
+        if (fileUploadButton && fileInput) {
+            console.log('Found file upload button and input');
+            // Remove any existing event listeners
+            fileUploadButton.replaceWith(fileUploadButton.cloneNode(true));
+            fileInput.replaceWith(fileInput.cloneNode(true));
+            
+            // Get the fresh elements after replacement
+            const freshFileUploadButton = document.querySelector('#deal-chat-widget .file-upload-btn-chat');
+            const freshFileInput = document.querySelector('#deal-chat-widget #chat-file-input');
+            
+            // Add single click handler to the button
+            freshFileUploadButton.addEventListener('click', (e) => {
+                e.preventDefault();
+                freshFileInput.click();
+            });
+            
+            // Add change handler to the input
+            freshFileInput.addEventListener('change', (e) => {
+                console.log('File input changed');
+                this.handleFileUpload(e.target.files);
+            });
+        } else {
+            console.log('File upload button or input not found');
         }
         
         // Context menu button event
-        const contextMenuButton = document.querySelector('.context-menu-button');
+        const contextMenuButton = document.querySelector('#deal-chat-widget .context-menu-button');
         if (contextMenuButton) {
             contextMenuButton.addEventListener('click', (e) => {
                 e.preventDefault();
@@ -42,26 +102,10 @@ const chatWidget = {
             });
         }
         
-        // File upload button event
-        const fileUploadButton = document.querySelector('.file-upload-btn-chat');
-        if (fileUploadButton) {
-            fileUploadButton.addEventListener('click', () => {
-                this.triggerFileUpload();
-            });
-        }
-        
-        // File input change event
-        const fileInput = document.querySelector('#chat-file-input');
-        if (fileInput) {
-            fileInput.addEventListener('change', (e) => {
-                this.handleFileUpload(e.target.files);
-            });
-        }
-        
         // Click outside to close context menu
         document.addEventListener('click', (e) => {
-            const contextMenu = document.querySelector('.context-menu');
-            const contextMenuButton = document.querySelector('.context-menu-button');
+            const contextMenu = document.querySelector('#deal-chat-widget .context-menu');
+            const contextMenuButton = document.querySelector('#deal-chat-widget .context-menu-button');
             
             if (contextMenu && contextMenu.classList.contains('active')) {
                 if (!contextMenu.contains(e.target) && e.target !== contextMenuButton) {
@@ -69,6 +113,8 @@ const chatWidget = {
                 }
             }
         });
+
+        console.log('Event listeners set up');
     },
     
     loadInitialMessages: function() {
@@ -98,6 +144,9 @@ const chatWidget = {
         // Update context items based on deal data
         this.updateContextItems(deal);
         
+        // Update deal context panel
+        this.updateDealContext(deal);
+        
         // Add a message showing deal selection
         this.addMessage({
             type: 'system',
@@ -109,6 +158,30 @@ const chatWidget = {
             type: 'assistant',
             text: this.generateDealSummary(deal)
         });
+        
+        // Update the UI to show active deal state
+        const noDealState = document.querySelector('.no-deal-state');
+        if (noDealState) noDealState.classList.remove('active');
+        
+        const activeDealState = document.querySelector('.active-deal-state');
+        if (activeDealState) {
+            activeDealState.classList.add('active');
+            
+            // Update active deal name
+            const dealNameEl = activeDealState.querySelector('.active-deal-name');
+            if (dealNameEl) dealNameEl.textContent = deal.name;
+            
+            // Update deal stage pill
+            const stagePillEl = activeDealState.querySelector('.deal-stage-pill');
+            if (stagePillEl) stagePillEl.textContent = deal.stage || 'No Stage';
+        }
+        
+        // Store in dealStore for global access
+        if (window.dealStore) {
+            window.dealStore.currentDeal = deal;
+            if (!window.dealStore.deals) window.dealStore.deals = {};
+            window.dealStore.deals[dealId] = deal;
+        }
     },
     
     handleDealCleared: function() {
@@ -118,11 +191,30 @@ const chatWidget = {
         // Clear context menu
         this.updateContextMenu();
         
+        // Update UI to show no deal selected
+        const noDealState = document.querySelector('.no-deal-state');
+        if (noDealState) noDealState.classList.add('active');
+        
+        const activeDealState = document.querySelector('.active-deal-state');
+        if (activeDealState) activeDealState.classList.remove('active');
+        
         // Add a message showing deal was cleared
         this.addMessage({
             type: 'system',
             text: 'Deal has been cleared. Select a new deal or ask a general question.'
         });
+        
+        // Clear from dealStore
+        if (window.dealStore) {
+            window.dealStore.currentDeal = null;
+        }
+        
+        // Switch to welcome message
+        const welcomeMessages = document.querySelectorAll('.welcome-message');
+        welcomeMessages.forEach(msg => msg.classList.remove('active'));
+        
+        const noDealMessage = document.querySelector('.welcome-message.no-deal-message');
+        if (noDealMessage) noDealMessage.classList.add('active');
     },
     
     generateDealSummary: function(deal) {
@@ -321,7 +413,7 @@ const chatWidget = {
     },
     
     sendMessage: function() {
-        const chatInput = document.querySelector('.chat-input');
+        const chatInput = document.querySelector('#deal-chat-widget .chat-input');
         if (!chatInput) return;
         
         const text = chatInput.value.trim();
@@ -340,40 +432,84 @@ const chatWidget = {
         this.processMessage(text);
     },
     
-    processMessage: function(text) {
-        // Here you would typically send the message to an AI backend
-        // For now, we'll simulate some basic responses
+    processMessage: function(message) {
+        // Check if this is a new deal creation request
+        const dealMatch = message.match(/create (?:a )?new deal(?: for| with)? ([^,.]+)/i);
+        if (dealMatch && this.uploadedFiles) {
+            const dealName = dealMatch[1].trim();
+            const newDeal = this.handleNewDealCreation(dealName, this.uploadedFiles);
+            
+            // Clear uploaded files after deal creation
+            this.uploadedFiles = null;
+            
+            // Handle the newly created deal
+            this.handleDealSelected(newDeal.id, newDeal);
+            return;
+        }
         
-        setTimeout(() => {
+        // Add user message
+        this.addMessage({
+            type: 'user',
+            text: message
+        });
+        
+        // Process message based on current mode
+        switch(this.currentMode) {
+            case 'Assistant':
+                this.processChatMessage(message);
+                break;
+            case 'Strategy':
+                this.processComposerMessage(message);
+                break;
+            case 'Ask':
+                this.processCoachingMessage(message);
+                break;
+        }
+    },
+    
+    processChatMessage: function(message) {
+        // Handle regular chat interaction
             if (this.currentDeal) {
-                if (text.toLowerCase().includes('summary')) {
                     this.addMessage({
                         type: 'assistant',
-                        text: this.generateDealSummary(this.currentDeal)
-                    });
-                } else if (text.toLowerCase().includes('contact') || text.toLowerCase().includes('stakeholder')) {
-                    this.respondWithContacts();
-                } else if (text.toLowerCase().includes('competitor') || text.toLowerCase().includes('competition')) {
-                    this.respondWithCompetitiveInfo();
-                } else if (text.toLowerCase().includes('timeline') || text.toLowerCase().includes('schedule')) {
-                    this.respondWithTimeline();
-                } else if (text.toLowerCase().includes('challenge') || text.toLowerCase().includes('risk')) {
-                    this.respondWithChallenges();
-                } else if (text.toLowerCase().includes('price') || text.toLowerCase().includes('cost') || text.toLowerCase().includes('value')) {
-                    this.respondWithFinancials();
+                text: `I'll help you with ${message} for ${this.currentDeal.name}.`
+            });
                 } else {
                     this.addMessage({
                         type: 'assistant',
-                        text: `I'm analyzing the ${this.currentDeal.name} deal. What specific aspects would you like insights on? (e.g., stakeholders, competition, timeline, challenges, or financials)`
-                    });
-                }
-            } else {
+                text: "Please select a deal first or create a new one to get started."
+            });
+        }
+    },
+    
+    processComposerMessage: function(message) {
+        if (!this.currentDeal) {
+            this.addMessage({
+                type: 'system',
+                text: "Please select a deal first to use the composer mode."
+            });
+            return;
+        }
+        
                 this.addMessage({
                     type: 'assistant',
-                    text: 'Please select a deal first to get specific insights, or ask me a general sales question.'
-                });
-            }
-        }, 1000);
+            text: `I'll help you compose content for ${this.currentDeal.name} based on your request: ${message}`
+        });
+    },
+    
+    processCoachingMessage: function(message) {
+        if (!this.currentDeal) {
+            this.addMessage({
+                type: 'system',
+                text: "Please select a deal first to receive coaching."
+            });
+            return;
+        }
+        
+        this.addMessage({
+            type: 'assistant',
+            text: `Here's my coaching advice for ${this.currentDeal.name} regarding: ${message}`
+        });
     },
     
     respondWithContacts: function() {
@@ -550,7 +686,7 @@ const chatWidget = {
         this.messages.push(message);
         
         // Add message to UI
-        const chatMessagesContainer = document.querySelector('.chat-messages');
+        const chatMessagesContainer = document.querySelector('#deal-chat-widget .chat-messages');
         if (!chatMessagesContainer) return;
         
         const messageElement = document.createElement('div');
@@ -574,21 +710,21 @@ const chatWidget = {
         chatMessagesContainer.scrollTop = chatMessagesContainer.scrollHeight;
         
         // Hide null state message if visible
-        const nullStateMessage = document.querySelector('.null-state-message');
+        const nullStateMessage = document.querySelector('#deal-chat-widget .null-state-message');
         if (nullStateMessage) {
             nullStateMessage.style.display = 'none';
         }
     },
     
     toggleContextMenu: function() {
-        const contextMenu = document.querySelector('.context-menu');
+        const contextMenu = document.querySelector('#deal-chat-widget .context-menu');
         if (contextMenu) {
             contextMenu.classList.toggle('active');
         }
     },
     
     updateContextMenu: function() {
-        const contextMenu = document.querySelector('.context-menu');
+        const contextMenu = document.querySelector('#deal-chat-widget .context-menu');
         if (!contextMenu) return;
         
         if (this.contextItems.length === 0) {
@@ -655,7 +791,7 @@ const chatWidget = {
     },
     
     insertContextIntoInput: function(text) {
-        const chatInput = document.querySelector('.chat-input');
+        const chatInput = document.querySelector('#deal-chat-widget .chat-input');
         if (!chatInput) return;
         
         const cursorPos = chatInput.selectionStart;
@@ -678,31 +814,363 @@ const chatWidget = {
     },
     
     triggerFileUpload: function() {
-        const fileInput = document.querySelector('#chat-file-input');
+        const fileInput = document.querySelector('#deal-chat-widget #chat-file-input');
         if (fileInput) {
             fileInput.click();
         }
     },
     
     handleFileUpload: function(files) {
-        if (!files || files.length === 0) return;
-        
-        // For demo purposes, just display a message
-        const fileNames = Array.from(files).map(file => file.name).join(', ');
-        
+        try {
+            if (!files || files.length === 0) {
+                console.error('No files provided to handleFileUpload');
+                this.addMessage({
+                    type: 'system',
+                    text: '❌ No files were selected. Please try again.'
+                });
+                return;
+            }
+            
+            console.log('Starting file upload process...', {
+                fileCount: files.length,
+                firstFileName: files[0].name,
+                firstFileSize: files[0].size
+            });
+            
+            // Store the uploaded files for reference
+            this.uploadedFiles = Array.from(files);
+            
+            // Add a processing message
         this.addMessage({
-            type: 'user',
-            text: `[Uploaded files: ${fileNames}]`
+                type: 'system',
+                text: '⚙️ Processing uploaded files...'
+            });
+            
+            // If we have a current deal, add files to it
+            if (window.dealStore && window.dealStore.currentDeal) {
+                // Dispatch fileUploaded event for deal content to handle
+                const event = new CustomEvent('fileUploaded', {
+                    detail: { files: files }
+                });
+                document.dispatchEvent(event);
+                
+                // Add success message
+                this.addMessage({
+                    type: 'system',
+                    text: `✅ Added ${files.length} file(s) to the current deal.`
+                });
+            } else {
+                // Create a new deal from the files
+                console.log('Creating new deal from files...');
+                const dealName = this.extractDealName(files[0].name) || 'New Deal';
+                console.log('Extracted deal name:', dealName);
+                
+                const newDeal = {
+                    id: 'deal-' + Date.now(),
+                    name: dealName,
+                    value: this.extractDealValue(files) || 'TBD',
+                    stage: 'Discovery',
+                    closeDate: new Date().toISOString().split('T')[0],
+                    company: {
+                        name: dealName.split(' ')[0],
+                        size: 'Enterprise',
+                        industry: 'Technology',
+                        location: 'United States'
+                    },
+                    files: Array.from(files).map(file => ({
+                        id: 'f' + Date.now() + Math.random().toString(36).substr(2, 9),
+                        name: file.name,
+                        type: file.name.split('.').pop().toLowerCase(),
+                        date: new Date().toISOString().split('T')[0],
+                        size: this.formatFileSize(file.size)
+                    })),
+                    notes: [{
+                        id: 'n' + Date.now(),
+                        date: new Date().toISOString().split('T')[0],
+                        text: 'Deal created from uploaded files'
+                    }],
+                    history: [{
+                        id: 'h' + Date.now(),
+                        title: 'Deal created',
+                        date: new Date().toISOString().split('T')[0],
+                        description: 'Deal automatically created from uploaded files'
+                    }]
+                };
+                
+                // Add deal to dealStore
+                if (!window.dealStore) {
+                    window.dealStore = {
+                        deals: {},
+                        currentDeal: null
+                    };
+                }
+                window.dealStore.deals[newDeal.id] = newDeal;
+                window.dealStore.currentDeal = newDeal.id;
+                
+                // Update dropdown
+                const dropdownContent = document.querySelector('.deal-context-bar .dropdown-content');
+                if (dropdownContent) {
+                    const existingOption = dropdownContent.querySelector(`[data-deal="${newDeal.id}"]`);
+                    if (existingOption) {
+                        existingOption.remove();
+                    }
+                    
+                    // Add the new deal option
+                    const newOption = document.createElement('a');
+                    newOption.href = '#';
+                    newOption.setAttribute('data-deal', newDeal.id);
+                    newOption.textContent = `${dealName} - ${newDeal.value}`;
+                    
+                    // Add click handler to the new option
+                    newOption.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        if (typeof window.selectDeal === 'function') {
+                            window.selectDeal(newDeal.id);
+                        }
+                    });
+                    
+                    dropdownContent.appendChild(newOption);
+                }
+                
+                // Add success message
+                this.addMessage({
+                    type: 'system',
+                    text: `✅ Created new deal "${dealName}" from uploaded files.`
+                });
+                
+                // Dispatch deal selected event
+                const event = new CustomEvent('dealSelected', { 
+                    detail: { dealId: newDeal.id, deal: newDeal } 
+                });
+                document.dispatchEvent(event);
+            }
+            
+            // Clear uploaded files reference
+            this.uploadedFiles = null;
+            
+        } catch (error) {
+            console.error('Error in handleFileUpload:', error);
+            this.addMessage({
+                type: 'system',
+                text: '❌ Sorry, there was an error processing the files. Please try again.'
+            });
+            this.uploadedFiles = null;
+        }
+    },
+    
+    extractDealName: function(fileName) {
+        // Remove file extension and common prefixes/suffixes
+        let name = fileName.split('.')[0]
+            .replace(/(proposal|quote|contract|agreement|doc|_|-)/gi, ' ')
+            .trim()
+            .split(' ')
+            .filter(word => word.length > 1) // Remove single characters
+            .join(' ');
+        
+        // Capitalize first letter of each word
+        return name.replace(/\w\S*/g, txt => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase());
+    },
+    
+    extractDealValue: function(files) {
+        // In a real implementation, this would analyze file contents
+        // For now, return a placeholder value
+        return '$250,000';
+    },
+    
+    formatFileSize: function(bytes) {
+        if (bytes < 1024) return bytes + ' B';
+        if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+        return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+    },
+
+    switchMode: function(mode) {
+        if (!this.modes[mode.toUpperCase()]) {
+            console.error('Invalid mode:', mode);
+            return;
+        }
+        
+        this.currentMode = mode;
+        
+        // Update mode selector button
+        const modeBtn = document.querySelector('.mode-selector-btn');
+        if (modeBtn) {
+            modeBtn.textContent = mode;
+        }
+        
+        // Update UI based on mode
+        const chatTab = document.querySelector('.chat-tab');
+        const composerTab = document.querySelector('.composer-tab');
+        const coachingTab = document.querySelector('.coaching-tab');
+        
+        // Hide all tabs first
+        [chatTab, composerTab, coachingTab].forEach(tab => {
+            if (tab) tab.classList.remove('active');
         });
         
-        setTimeout(() => {
+        // Show the selected tab
+        switch(mode.toUpperCase()) {
+            case 'CHAT':
+                if (chatTab) chatTab.classList.add('active');
+                break;
+            case 'COMPOSER':
+                if (composerTab) composerTab.classList.add('active');
+                break;
+            case 'COACHING':
+                if (coachingTab) coachingTab.classList.add('active');
+                break;
+        }
+        
+        // Dispatch mode change event
+        document.dispatchEvent(new CustomEvent('widgetModeChanged', {
+            detail: { mode: mode }
+        }));
+    },
+
+    initializeModeSelector: function() {
+        const modeSelector = document.querySelector('.widget-mode-selector');
+        if (!modeSelector) return;
+        
+        const modeBtn = modeSelector.querySelector('.mode-selector-btn');
+        const modeDropdown = modeSelector.querySelector('.dropdown-content');
+        
+        if (modeBtn && modeDropdown) {
+            // Add click handler for mode button
+            modeBtn.addEventListener('click', () => {
+                modeDropdown.classList.toggle('show');
+            });
+            
+            // Add click handlers for mode options
+            modeDropdown.querySelectorAll('a').forEach(option => {
+                option.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const mode = e.target.getAttribute('data-mode');
+                    if (mode) {
+                        this.switchMode(mode);
+                        modeDropdown.classList.remove('show');
+                    }
+                });
+            });
+        }
+    },
+
+    updateDealContext: function(deal) {
+        if (!deal) return;
+        
+        // Update deal context panel
+        const contextPanel = document.querySelector('.deal-context-panel');
+        if (!contextPanel) return;
+        
+        // Update deal header
+        const dealHeader = contextPanel.querySelector('.deal-header');
+        if (dealHeader) {
+            dealHeader.innerHTML = `
+                <div class="deal-title">
+                    <h3>${deal.name}</h3>
+                    <span class="deal-stage">${deal.stage}</span>
+                </div>
+                <div class="deal-value">${deal.value}</div>
+            `;
+        }
+        
+        // Update key metrics
+        const metricsSection = contextPanel.querySelector('.deal-metrics');
+        if (metricsSection) {
+            metricsSection.innerHTML = `
+                <div class="metric">
+                    <label>Close Date</label>
+                    <value>${deal.closeDate}</value>
+                </div>
+                <div class="metric">
+                    <label>Company Size</label>
+                    <value>${deal.company ? deal.company.size : 'N/A'}</value>
+                </div>
+                <div class="metric">
+                    <label>Industry</label>
+                    <value>${deal.industry || 'N/A'}</value>
+                </div>
+            `;
+        }
+        
+        // Update quick actions based on current mode
+        const actionsSection = contextPanel.querySelector('.quick-actions');
+        if (actionsSection) {
+            let actions = '';
+            switch(this.currentMode) {
+                case 'Assistant':
+                    actions = `
+                        <button class="action-btn" data-action="view-files">View Files (${deal.files.length})</button>
+                        <button class="action-btn" data-action="add-note">Add Note</button>
+                    `;
+                    break;
+                case 'Strategy':
+                    actions = `
+                        <button class="action-btn" data-action="draft-email">Draft Email</button>
+                        <button class="action-btn" data-action="create-proposal">Create Proposal</button>
+                    `;
+                    break;
+                case 'Ask':
+                    actions = `
+                        <button class="action-btn" data-action="deal-strategy">Deal Strategy</button>
+                        <button class="action-btn" data-action="competitive-analysis">Competitive Analysis</button>
+                    `;
+                    break;
+            }
+            actionsSection.innerHTML = actions;
+            
+            // Add event listeners to action buttons
+            actionsSection.querySelectorAll('.action-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const action = e.target.getAttribute('data-action');
+                    this.handleContextAction(action, deal);
+                });
+            });
+        }
+    },
+
+    handleContextAction: function(action, deal) {
+        switch(action) {
+            case 'view-files':
+                this.addMessage({
+                    type: 'system',
+                    text: `Here are the files for ${deal.name}:`,
+                    files: deal.files
+                });
+                break;
+            case 'add-note':
+                // Show note input UI
+                this.showAddNoteDialog(deal);
+                break;
+            case 'draft-email':
             this.addMessage({
                 type: 'assistant',
-                text: `I've received your files: ${fileNames}. I'll analyze these documents in the context of your deal.`
-            });
-        }, 1000);
+                    text: `I'll help you draft an email for ${deal.name}. What would you like to communicate?`
+                });
+                break;
+            case 'create-proposal':
+                this.addMessage({
+                    type: 'assistant',
+                    text: `Let's create a proposal for ${deal.name}. I'll help you structure it based on their requirements.`
+                });
+                break;
+            case 'deal-strategy':
+                this.addMessage({
+                    type: 'assistant',
+                    text: `Let's analyze the strategy for ${deal.name}. I'll provide insights based on the deal information.`
+                });
+                break;
+            case 'competitive-analysis':
+                this.addMessage({
+                    type: 'assistant',
+                    text: `I'll help you analyze the competitive landscape for ${deal.name} based on their industry and requirements.`
+                });
+                break;
+        }
+    },
+
+    showAddNoteDialog: function(deal) {
+        // Implementation of showAddNoteDialog method
     }
 };
 
-// Export the chat widget to the global scope
+// Make chatWidget globally available
 window.chatWidget = chatWidget; 

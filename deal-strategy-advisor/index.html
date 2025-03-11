@@ -37,6 +37,189 @@
     
     <!-- Critical CSS Fix: Force basic interactivity even if regular CSS is broken -->
     <style>
+        /* Add your custom styles here */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        /* Basic styles for the Slack-like UI */
+        .workspace {
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+        
+        /* Hide test controls and workspace controls */
+        div:has(> h3:contains("Test Controls")),
+        div:has(> h3:contains("Workspace Controls")),
+        div:has(> div:contains("Test Controls")),
+        div:has(> div:contains("Fix Workspace Tabs")) {
+            display: none !important;
+        }
+        
+        /* Ensure widget controls are always visible */
+        .widget-header .control-btn, 
+        .control-btn.collapse-btn, 
+        .control-btn.expand-btn, 
+        .control-btn.expand-plus-btn {
+            visibility: visible !important;
+            opacity: 1 !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            background: rgba(255,255,255,0.2) !important;
+            border: 1px solid rgba(255,255,255,0.4) !important;
+            color: white !important;
+            width: 30px !important;
+            height: 30px !important;
+            z-index: 10000 !important;
+            position: relative !important;
+        }
+        
+        /* Make sure widget controls container is visible */
+        .widget-controls {
+            display: flex !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+            z-index: 10000 !important;
+        }
+        
+        /* Fix styling for the widget header */
+        .widget-header {
+            display: flex !important;
+            justify-content: space-between !important;
+            align-items: center !important;
+            background-color: #4285f4 !important;
+            height: 48px !important;
+            padding: 0 15px !important;
+            box-sizing: border-box !important;
+        }
+
+        /* Add hover effect for control buttons */
+        .widget-header .control-btn:hover {
+            background: rgba(255,255,255,0.3) !important;
+            cursor: pointer !important;
+        }
+        
+        /* Styles for new Tasks and Strategy tabs */
+        .deal-tab-content.tasks-tab,
+        .deal-tab-content.strategy-tab {
+            padding: 0 !important;
+            height: 100% !important;
+            overflow-y: auto !important;
+        }
+        
+        .deal-tasks,
+        .deal-strategy {
+            padding: 0 !important;
+            height: 100% !important;
+        }
+        
+        .tasks-container,
+        .strategy-container {
+            padding: 20px !important;
+        }
+        
+        .tasks-header,
+        .strategy-header {
+            display: flex !important;
+            justify-content: space-between !important;
+            align-items: center !important;
+            margin-bottom: 15px !important;
+        }
+        
+        .tasks-header h4,
+        .strategy-header h4 {
+            margin: 0 !important;
+            font-size: 16px !important;
+            color: #202124 !important;
+        }
+        
+        .add-task-btn,
+        .edit-strategy-btn {
+            background-color: #1a73e8 !important;
+            color: white !important;
+            border: none !important;
+            border-radius: 4px !important;
+            padding: 6px 12px !important;
+            font-size: 14px !important;
+            cursor: pointer !important;
+        }
+        
+        .task-filters {
+            display: flex !important;
+            gap: 10px !important;
+            margin-bottom: 15px !important;
+        }
+        
+        .task-filters select {
+            padding: 6px 8px !important;
+            border: 1px solid #e0e0e0 !important;
+            border-radius: 4px !important;
+            font-size: 14px !important;
+        }
+        
+        .strategy-section {
+            margin-bottom: 20px !important;
+            border: 1px solid #e0e0e0 !important;
+            border-radius: 4px !important;
+            padding: 15px !important;
+            background-color: #f8f9fa !important;
+        }
+        
+        .strategy-section h5 {
+            margin-top: 0 !important;
+            margin-bottom: 10px !important;
+            font-size: 14px !important;
+            color: #5f6368 !important;
+        }
+        
+        .no-strategy-message,
+        .no-tasks-message {
+            color: #5f6368 !important;
+            font-style: italic !important;
+            font-size: 14px !important;
+        }
+        
+        /* Fix content tabs spacing for more tabs */
+        .deal-content-tabs {
+            display: flex !important;
+            flex-wrap: wrap !important;
+            border-bottom: 1px solid #e0e0e0 !important;
+            background-color: #ffffff !important;
+        }
+        
+        .deal-tab-btn {
+            padding: 10px 15px !important;
+            font-size: 14px !important;
+        }
+        
+        /* Hide test controls and workspace controls */
+        div:has(> div:contains("Test Controls")),
+        div:has(> div:contains("Workspace Controls")),
+        div.test-controls,
+        #test-controls,
+        div[style*="Test Controls"],
+        div:has(> button:contains("Acme Corporation")),
+        div:has(> button:contains("TechStar Inc")),
+        div:has(> button:contains("Global Systems")),
+        div:has(> button:contains("Fix Workspace Tabs")),
+        div:has(> button.company-btn),
+        [class*="test-controls"],
+        [id*="test-controls"],
+        [class*="workspace-controls"],
+        [id*="workspace-controls"] {
+            display: none !important;
+            visibility: hidden !important;
+            opacity: 0 !important;
+            height: 0 !important;
+            width: 0 !important;
+            overflow: hidden !important;
+            position: absolute !important;
+            pointer-events: none !important;
+            left: -9999px !important;
+        }
+        
         /* Force pointer events to work on clickable elements */
         button, a, .tab, [class*="btn"], [role="button"], .dropdown, .select-deal-btn {
             pointer-events: auto !important;
@@ -140,6 +323,140 @@
             z-index: 9999 !important;
             margin-bottom: 5px !important; /* Changed from margin-top */
             min-width: 200px !important;
+        }
+        
+        /* Additional fixes for the controls layout */
+        .controls-bar {
+            display: flex !important;
+            justify-content: space-between !important;
+            width: 100% !important;
+        }
+        
+        .widget-mode-selector {
+            display: flex !important;
+            justify-content: flex-end !important;
+        }
+        
+        .chat-pane .chat-section {
+            display: flex !important;
+            flex-direction: column !important;
+            height: 100% !important;
+        }
+        
+        .chat-messages {
+            flex: 1 !important;
+            overflow-y: auto !important;
+        }
+        
+        /* Widget Header and Overall Layout Consistency */
+        #deal-chat-widget {
+            border-radius: 8px 8px 0 0 !important;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1) !important;
+            overflow: hidden !important;
+        }
+        
+        /* Full-height in expanded state */
+        #deal-chat-widget.widget-expanded {
+            height: 100vh !important;
+            position: fixed !important;
+            bottom: 0 !important;
+            right: 20px !important;
+            z-index: 1000 !important;
+        }
+        
+        #deal-chat-widget.widget-expanded-plus {
+            height: 100vh !important;
+            position: fixed !important;
+            bottom: 0 !important;
+            right: 20px !important;
+            z-index: 1000 !important;
+            width: 800px !important; /* or whatever width you prefer for the expanded-plus state */
+        }
+        
+        .drag-handle {
+            display: flex !important;
+            align-items: center !important;
+            gap: 8px !important;
+        }
+        
+        .header-title {
+            font-size: 16px !important;
+            font-weight: 500 !important;
+            white-space: nowrap !important;
+        }
+        
+        .widget-controls {
+            display: flex !important;
+            gap: 8px !important;
+        }
+        
+        .control-btn {
+            background: none !important;
+            border: none !important;
+            color: white !important;
+            font-size: 18px !important;
+            cursor: pointer !important;
+            height: 24px !important;
+            width: 24px !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            padding: 0 !important;
+            border-radius: 4px !important;
+        }
+        
+        .control-btn:hover {
+            background-color: rgba(255, 255, 255, 0.2) !important;
+        }
+        
+        .widget-content {
+            background-color: #ffffff !important;
+            height: calc(100% - 48px) !important;
+            overflow: hidden !important;
+        }
+        
+        .panes-container {
+            display: flex !important;
+            height: 100% !important;
+        }
+        
+        /* Deal Content Panel Consistency */
+        .deal-content-pane {
+            border-left: 1px solid #e0e0e0 !important;
+            background-color: #ffffff !important;
+        }
+        
+        .deal-content-header {
+            border-bottom: 1px solid #e0e0e0 !important;
+            padding: 15px 20px !important;
+            background-color: #f8f9fa !important;
+        }
+        
+        .deal-content-header h3 {
+            margin: 0 !important;
+            font-size: 18px !important;
+            color: #202124 !important;
+        }
+        
+        .deal-content-tabs {
+            display: flex !important;
+            border-bottom: 1px solid #e0e0e0 !important;
+            background-color: #ffffff !important;
+        }
+        
+        .deal-tab-btn {
+            padding: 10px 20px !important;
+            border: none !important;
+            background: none !important;
+            color: #5f6368 !important;
+            font-weight: 500 !important;
+            cursor: pointer !important;
+            position: relative !important;
+        }
+        
+        .deal-tab-btn.active {
+            color: #1a73e8 !important;
+            border-bottom: 2px solid #1a73e8 !important;
         }
     </style>
     
@@ -332,9 +649,21 @@
                 <span class="header-title">Deal Advisor</span>
             </div>
             <div class="widget-controls">
-                <button class="control-btn collapse-btn" title="Collapse">−</button>
-                <button class="control-btn expand-btn" title="Expand">□</button>
-                <button class="control-btn expand-plus-btn" title="Show Deal Details">☰</button>
+                <button class="control-btn collapse-btn" title="Collapse" style="background: rgba(255,255,255,0.2) !important; border: 1px solid rgba(255,255,255,0.4) !important; visibility: visible !important; opacity: 1 !important; color: white !important; display: flex !important; align-items: center !important; justify-content: center !important; width: 30px !important; height: 30px !important;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M4 8a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7A.5.5 0 0 1 4 8z"/>
+                    </svg>
+                </button>
+                <button class="control-btn expand-btn" title="Expand" style="background: rgba(255,255,255,0.2) !important; border: 1px solid rgba(255,255,255,0.4) !important; visibility: visible !important; opacity: 1 !important; color: white !important; display: flex !important; align-items: center !important; justify-content: center !important; width: 30px !important; height: 30px !important;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M1 1h14v14H1V1zm1 1v12h12V2H2z"/>
+                    </svg>
+                </button>
+                <button class="control-btn expand-plus-btn" title="Show Deal Details" style="background: rgba(255,255,255,0.2) !important; border: 1px solid rgba(255,255,255,0.4) !important; visibility: visible !important; opacity: 1 !important; color: white !important; display: flex !important; align-items: center !important; justify-content: center !important; width: 30px !important; height: 30px !important;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd" d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5z"/>
+                    </svg>
+                </button>
             </div>
         </div>
         
@@ -342,9 +671,9 @@
             <!-- Hidden Tab Navigation (Kept for JS compatibility) -->
             <div class="widget-tabs" style="display: none;">
                 <div class="tab-nav">
-                    <button class="tab-btn active" data-tab="agent">Chat</button>
-                    <button class="tab-btn" data-tab="ask">Composer</button>
-                    <button class="tab-btn" data-tab="tasks">Coaching</button>
+                    <button class="tab-btn active" data-tab="agent">Assistant</button>
+                    <button class="tab-btn" data-tab="ask">Strategy</button>
+                    <button class="tab-btn" data-tab="tasks">Ask</button>
                 </div>
             </div>
             
@@ -373,9 +702,9 @@
                                         <div class="dropdown">
                                             <button class="select-deal-btn">Select Deal</button>
                                             <div class="dropdown-content">
-                                                <a href="#" data-deal="deal-1">Acme Corp - $50,000</a>
-                                                <a href="#" data-deal="deal-2">TechStar Inc - $75,000</a>
-                                                <a href="#" data-deal="deal-3">Global Systems - $120,000</a>
+                                                <a href="#" data-deal="deal-1" onclick="window.selectDeal('deal-1'); return false;">Acme Corp - $50,000</a>
+                                                <a href="#" data-deal="deal-2" onclick="window.selectDeal('deal-2'); return false;">TechStar Inc - $75,000</a>
+                                                <a href="#" data-deal="deal-3" onclick="window.selectDeal('deal-3'); return false;">Global Systems - $120,000</a>
                                             </div>
                                         </div>
                                     </div>
@@ -395,13 +724,13 @@
                                 <div class="widget-mode-selector">
                                     <div class="dropdown">
                                         <button class="mode-selector-btn">
-                                            <span class="current-mode">Agent</span>
+                                            <span class="current-mode">Strategy</span>
                                             <span class="dropdown-arrow">▼</span>
                                         </button>
                                         <div class="dropdown-content">
-                                            <a href="#" data-tab="agent" class="active">Chat</a>
-                                            <a href="#" data-tab="ask">Composer</a>
-                                            <a href="#" data-tab="tasks">Coaching</a>
+                                            <a href="#" data-tab="agent">Assistant</a>
+                                            <a href="#" data-tab="ask" class="active">Strategy</a>
+                                            <a href="#" data-tab="tasks">Ask</a>
                                         </div>
                                     </div>
                                     <!-- Action buttons -->
@@ -422,6 +751,8 @@
                                 </button>
                                 <button class="send-btn">→</button>
                             </div>
+                            <!-- Hidden file input for uploads -->
+                            <input type="file" id="chat-file-input" style="display: none;" multiple>
                         </div>
                     </div>
                 </div>
@@ -434,6 +765,8 @@
                     <div class="deal-content-tabs">
                         <button class="deal-tab-btn active" data-dealtab="overview">Overview</button>
                         <button class="deal-tab-btn" data-dealtab="files">Files</button>
+                        <button class="deal-tab-btn" data-dealtab="tasks">Tasks</button>
+                        <button class="deal-tab-btn" data-dealtab="strategy">Strategy</button>
                         <button class="deal-tab-btn" data-dealtab="history">History</button>
                     </div>
                     <div class="deal-content-body">
@@ -534,6 +867,75 @@
                             </div>
                         </div>
                         
+                        <!-- Tasks Tab -->
+                        <div class="deal-tab-content tasks-tab">
+                            <div class="no-deal-selected active">
+                                <p>Select a deal to see tasks</p>
+                            </div>
+                            <div class="deal-tasks">
+                                <div class="tasks-container">
+                                    <div class="tasks-header">
+                                        <h4>Deal Tasks</h4>
+                                        <button class="add-task-btn">+ Add Task</button>
+                                    </div>
+                                    <div class="tasks-list">
+                                        <div class="task-filters">
+                                            <select class="task-status-filter">
+                                                <option value="all">All Tasks</option>
+                                                <option value="open">Open Tasks</option>
+                                                <option value="completed">Completed Tasks</option>
+                                            </select>
+                                            <select class="task-assign-filter">
+                                                <option value="all">All Assignees</option>
+                                                <option value="me">Assigned to Me</option>
+                                                <option value="team">Team Tasks</option>
+                                            </select>
+                                        </div>
+                                        <div class="tasks-items">
+                                            <p class="no-tasks-message">No tasks created</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Strategy Tab -->
+                        <div class="deal-tab-content strategy-tab">
+                            <div class="no-deal-selected active">
+                                <p>Select a deal to see strategy</p>
+                            </div>
+                            <div class="deal-strategy">
+                                <div class="strategy-container">
+                                    <div class="strategy-header">
+                                        <h4>Deal Strategy</h4>
+                                        <button class="edit-strategy-btn">Edit Strategy</button>
+                                    </div>
+                                    <div class="strategy-content">
+                                        <div class="strategy-section">
+                                            <h5>Deal Value Proposition</h5>
+                                            <p class="no-strategy-message">No value proposition defined</p>
+                                            <div class="strategy-text value-prop-text"></div>
+                                        </div>
+                                        <div class="strategy-section">
+                                            <h5>Competitive Analysis</h5>
+                                            <p class="no-strategy-message">No competitive analysis defined</p>
+                                            <div class="strategy-text competitive-text"></div>
+                                        </div>
+                                        <div class="strategy-section">
+                                            <h5>Decision Criteria</h5>
+                                            <p class="no-strategy-message">No decision criteria defined</p>
+                                            <div class="strategy-text criteria-text"></div>
+                                        </div>
+                                        <div class="strategy-section">
+                                            <h5>Action Plan</h5>
+                                            <p class="no-strategy-message">No action plan defined</p>
+                                            <div class="strategy-text action-plan-text"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
                         <!-- History Tab -->
                         <div class="deal-tab-content history-tab">
                             <div class="no-deal-selected active">
@@ -566,11 +968,6 @@
         </div>
     </div>
 
-    <!-- Test mode indicator -->
-    <div id="test-mode-indicator" style="position: fixed; top: 0; right: 0; background-color: #f44336; color: white; padding: 5px 10px; font-size: 12px; z-index: 9999;">
-        TESTING MODE
-    </div>
-
     <!-- Scripts -->
     <script src="js/dealData.js"></script>
     <script src="js/dealContent.js"></script>
@@ -580,5 +977,48 @@
     
     <!-- Recovery script to handle page freezes -->
     <script src="js/recovery.js"></script>
+    
+    <!-- Script to remove test controls and workspace controls -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Function to remove elements with text content
+            function removeElementsWithText(searchText) {
+                const elements = document.querySelectorAll('div');
+                elements.forEach(element => {
+                    if (element.textContent && element.textContent.includes(searchText)) {
+                        element.remove();
+                    }
+                });
+            }
+            
+            // Function to remove elements by their style content
+            function removeElementsByStyle(styleText) {
+                const elements = document.querySelectorAll('div[style]');
+                elements.forEach(element => {
+                    if (element.getAttribute('style') && element.getAttribute('style').includes(styleText)) {
+                        element.remove();
+                    }
+                });
+            }
+            
+            // Remove Test Controls and Workspace Controls
+            removeElementsWithText('Test Controls');
+            removeElementsWithText('Workspace Controls');
+            removeElementsWithText('Fix Workspace Tabs');
+            removeElementsWithText('Acme Corporation (Fallback)');
+            removeElementsWithText('TechStar Inc (Fallback)');
+            removeElementsWithText('Global Systems (Fallback)');
+            
+            // Remove elements with fixed positioning that might be test controls
+            removeElementsByStyle('position: fixed');
+            
+            // Try again after a short delay to catch dynamically added elements
+            setTimeout(function() {
+                removeElementsWithText('Test Controls');
+                removeElementsWithText('Workspace Controls');
+                removeElementsWithText('Fix Workspace Tabs');
+            }, 500);
+        });
+    </script>
 </body>
 </html> 
