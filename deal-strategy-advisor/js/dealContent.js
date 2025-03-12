@@ -18,9 +18,17 @@ const DealContent = {
         this.elements.widget = document.getElementById('deal-chat-widget');
         this.elements.contentPane = document.querySelector('.deal-content-pane');
         this.elements.chatPane = document.querySelector('.chat-pane');
+        this.elements.tabsContainer = document.querySelector('.deal-tabs');
+        this.elements.contentContainer = document.querySelector('.deal-tab-content-container');
+        
+        // Make DealContent accessible globally for direct calls
+        window.DealContent = this;
         
         // Initialize event listeners
         this.initializeEventListeners();
+        
+        // HARD FIX: Add direct observers for file uploads
+        this.setupHardFixObservers();
         
         console.log('DealContent module initialized');
     },
@@ -62,6 +70,65 @@ const DealContent = {
                 this.triggerFileUpload();
             }
         });
+    },
+    
+    // HARD FIX: Setup mutation observers to detect file uploads
+    setupHardFixObservers() {
+        console.log('HARD FIX: Setting up file upload observers');
+        
+        // Watch for file input changes
+        const fileInputs = document.querySelectorAll('input[type="file"]');
+        fileInputs.forEach(input => {
+            input.addEventListener('change', (e) => {
+                console.log('HARD FIX: File input change detected', e.target.files);
+                if (e.target.files && e.target.files.length > 0) {
+                    // Schedule multiple retries to ensure files are processed
+                    for (let i = 1; i <= 3; i++) {
+                        setTimeout(() => {
+                            console.log(`HARD FIX: Retry ${i} for file upload processing`);
+                            this.handleFileUploaded(e.target.files);
+                        }, i * 500); // Staggered retries at 500ms, 1000ms, and 1500ms
+                    }
+                }
+            }, true); // Use capture to ensure we get the event first
+        });
+        
+        // Observe DOM for new file inputs
+        const observer = new MutationObserver(mutations => {
+            for (const mutation of mutations) {
+                if (mutation.type === 'childList') {
+                    mutation.addedNodes.forEach(node => {
+                        if (node.nodeType === 1) { // Element node
+                            const fileInputs = node.querySelectorAll('input[type="file"]');
+                            fileInputs.forEach(input => {
+                                input.addEventListener('change', (e) => {
+                                    console.log('HARD FIX: File input change detected from observer', e.target.files);
+                                    if (e.target.files && e.target.files.length > 0) {
+                                        this.handleFileUploaded(e.target.files);
+                                    }
+                                }, true);
+                            });
+                        }
+                    });
+                }
+            }
+        });
+        
+        observer.observe(document.body, { childList: true, subtree: true });
+        
+        // Also add a click handler for the file upload button
+        const uploadBtn = document.querySelector('.file-upload-btn-chat');
+        if (uploadBtn) {
+            uploadBtn.addEventListener('click', () => {
+                console.log('HARD FIX: Upload button clicked');
+                // Make sure deal is selected
+                if (!this.currentDeal) {
+                    console.log('HARD FIX: No deal selected, attempting to find current deal');
+                    const dealStore = window.dealStore || {};
+                    this.currentDeal = dealStore.currentDeal;
+                }
+            }, true);
+        }
     },
     
     // Clear the current deal
@@ -514,7 +581,35 @@ const DealContent = {
     
     // Handle uploaded files
     handleFileUploaded(files) {
-        if (!this.currentDeal || !files.length) return;
+        console.log('DealContent.handleFileUploaded called', {
+            files: files,
+            currentDeal: this.currentDeal ? this.currentDeal.id : 'none'
+        });
+        
+        if (!files.length) {
+            console.error('No files provided to handleFileUploaded');
+            return;
+        }
+        
+        // HARD FIX: If no current deal, try to find it from dealStore
+        if (!this.currentDeal) {
+            console.log('HARD FIX: No current deal, checking dealStore');
+            const dealStore = window.dealStore || {};
+            if (dealStore.currentDeal) {
+                console.log('HARD FIX: Found current deal in dealStore', dealStore.currentDeal.id);
+                this.currentDeal = dealStore.currentDeal;
+            } else {
+                // If still no deal, try the first deal in the store
+                const dealIds = dealStore.deals ? Object.keys(dealStore.deals) : [];
+                if (dealIds.length > 0) {
+                    console.log('HARD FIX: Using first available deal', dealIds[0]);
+                    this.currentDeal = dealStore.deals[dealIds[0]];
+                } else {
+                    console.error('HARD FIX: No deals available in dealStore');
+                    return;
+                }
+            }
+        }
         
         // Make sure the content pane is visible before processing files
         this.ensureContentPaneVisible();
@@ -528,6 +623,8 @@ const DealContent = {
                 size: this.formatFileSize(file.size),
                 date: new Date().toISOString().split('T')[0]
             };
+            
+            console.log('Adding file to deal:', fileData);
             
             // Add file to deal
             if (!this.currentDeal.files) this.currentDeal.files = [];
@@ -546,23 +643,46 @@ const DealContent = {
         // Update all tab counts
         this.updateTabCounts(this.currentDeal);
         
-        // Refresh content if on files tab
-        const activeTabName = this.getActiveTabName();
-        if (activeTabName === 'files') {
-            // Update files list
-            const filesPane = document.querySelector('.deal-tab-content.files-tab');
-            if (filesPane) {
-                const filesList = filesPane.querySelector('.files-list');
-                if (filesList && this.currentDeal.files?.length > 0) {
-                    // Remove "no files" message if it exists
-                    const noFilesMsg = filesPane.querySelector('.no-files-message');
-                    if (noFilesMsg) noFilesMsg.remove();
-                    
-                    // Update the files list
-                    this.renderFiles();
-                }
+        // Switch to files tab to show the uploaded files
+        this.selectTab('files');
+        
+        // HARD FIX: Force rendering of files with retries
+        setTimeout(() => {
+            console.log('HARD FIX: Forcing file rendering');
+            this.renderFiles();
+            
+            // Force visibility of file list
+            const filesList = document.querySelector('.files-list');
+            if (filesList) {
+                filesList.style.display = 'block';
             }
-        }
+            
+            // Force update tab counts again
+            this.updateTabCounts(this.currentDeal);
+            
+            // Force active class on files tab
+            const filesTab = document.querySelector('.deal-tab-btn[data-dealtab="files"]');
+            if (filesTab) {
+                document.querySelectorAll('.deal-tab-btn').forEach(tab => 
+                    tab.classList.remove('active'));
+                filesTab.classList.add('active');
+            }
+            
+            // Force active class on files content
+            const tabContents = document.querySelectorAll('.deal-tab-content');
+            tabContents.forEach(content => content.classList.remove('active'));
+            
+            const filesContent = document.querySelector('.deal-tab-content.files-tab');
+            if (filesContent) {
+                filesContent.classList.add('active');
+            }
+        }, 200);
+        
+        // Retry rendering files after a delay to ensure DOM is updated
+        setTimeout(() => {
+            console.log('HARD FIX: Retry rendering files');
+            this.renderFiles();
+        }, 500);
         
         // Final check to ensure content pane is visible
         setTimeout(() => this.ensureContentPaneVisible(), 100);
@@ -579,6 +699,11 @@ const DealContent = {
                         display: 'flex !important'
                     });
                 });
+            }
+            
+            // Force a re-render of files tab if active
+            if (this.getActiveTabName() === 'files') {
+                this.renderFiles();
             }
         }, 200);
     },
@@ -669,6 +794,23 @@ const DealContent = {
         if (activeDealState) activeDealState.classList.add('active');
         
         console.log('Special deal content rendered for:', deal.name);
+    },
+    
+    // Helper method to select a specific tab
+    selectTab(tabName) {
+        if (!this.elements.tabsContainer) return;
+        
+        console.log(`Selecting tab: ${tabName}`);
+        
+        // Find the tab button
+        const tabBtn = this.elements.tabsContainer.querySelector(`.deal-tab-btn[data-dealtab="${tabName}"]`);
+        if (!tabBtn) {
+            console.error(`Tab button for ${tabName} not found`);
+            return;
+        }
+        
+        // Simulate click on the tab
+        this.handleTabClick(tabBtn);
     }
 };
 
